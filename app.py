@@ -17,7 +17,7 @@ postgre_service = os.getenv("POSTGRE_SERVICE")
 
 app = Flask(__name__)
 
-@app.route('/api/insertar', methods=['POST'])
+@app.route('/api/empleado', methods=['POST'])
 def insertar_registro():
     try:
         data = request.get_json()

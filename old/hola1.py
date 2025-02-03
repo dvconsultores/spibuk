@@ -11,17 +11,17 @@ dsn = cx_Oracle.makedsn(host, port, service_name)
 
 try:
     ##*************************************** ORACLE SPI
-    connection = cx_Oracle.connect(username, password, dsn)
-    print("Conexión exitosa a Oracle SPI")
+    #connection = cx_Oracle.connect(username, password, dsn)
+    #print("Conexión exitosa a Oracle SPI")
   
-    cursor = connection.cursor()
-    sql_query = 'SELECT * FROM EO_PERSONA'
-    cursor.execute(sql_query)
+    #cursor = connection.cursor()
+    #sql_query = 'SELECT * FROM EO_PERSONA'
+    #cursor.execute(sql_query)
 
-    results = cursor.fetchall()
+    #results = cursor.fetchall()
  
-    for row in results:
-        print(row)
+    #for row in results:
+    #    print(row)
     ##*************************************** API BUK
     api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees"
     headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
@@ -32,7 +32,7 @@ try:
         print("Datos de la API obtenidos con éxito.",data)
     else:
         print("Error al realizar la solicitud GET a la API. :", response.status_code)
-    connection.close()
+    #connection.close()
 except cx_Oracle.Error as error:
     print("Error al conectar a Oracle SPI:", error)
 

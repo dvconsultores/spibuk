@@ -146,8 +146,6 @@ try:
             else:
                 print("Error al realizar la solicitud GET a la API. :", responseEmpresa.status_code)
 
-
-
             #determina el id de la ENTIDAD FEDERAL
             Buk_ESTADO = (dataEmpleado.get("data", [])
                                 .get("custom_attributes", {})
@@ -215,11 +213,16 @@ try:
             Buk_TELEFONO2=' '
             Buk_FAX=' '
             Buk_CELULAR=(dataEmpleado.get("data", []).get("phone"))[:120]
-            if dataEmpleado.get("data", []).get("personal_email"):
-                Buk_E_MAIL1=(dataEmpleado.get("data", []).get("personal_email"))[:120]
+
+            if dataEmpleado.get("data", []).get("email"):
+                Buk_E_MAIL1=(dataEmpleado.get("data", []).get("email"))[:120]
             else:
                 Buk_E_MAIL1=''
-            Buk_E_MAIL2=''
+
+            if dataEmpleado.get("data", []).get("personal_email"):
+                Buk_E_MAIL2=(dataEmpleado.get("data", []).get("personal_email"))[:120]
+            else:
+                Buk_E_MAIL2=''
             Buk_IN_REL_TRAB=''
             Buk_USRCRE='ETL'
             #----

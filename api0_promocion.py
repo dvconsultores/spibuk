@@ -68,7 +68,7 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (22096,21896,21695)"
+        sql_query = "SELECT * FROM empleados where ID  in (22257,25041)"
         #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
@@ -241,7 +241,7 @@ try:
             if count_result == 1:         
                 if results_eo_persona[1] != Buk_NOMBRE1:
                      # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en NOMBRE1= SPI:'+results_eo_persona[1]+" BUK:"+Buk_NOMBRE1
+                    Actividad = 'Diferencia en NOMBRE1= SPI:'+str(results_eo_persona[1])+" BUK:"+str(Buk_NOMBRE1)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -263,7 +263,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[3] != Buk_APELLIDO1:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en APELLIDO1= SPI:'+results_eo_persona[3]+" BUK:"+Buk_APELLIDO1
+                    Actividad = 'Diferencia en APELLIDO1= SPI:'+str(results_eo_persona[3])+" BUK:"+str(Buk_APELLIDO1)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -285,7 +285,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[5] != Buk_ID_TIPO_IDEN:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_TIPO_IDEN= SPI:'+results_eo_persona[5]+" BUK:"+Buk_ID_TIPO_IDEN
+                    Actividad = 'Diferencia en ID_TIPO_IDEN= SPI:'+str(results_eo_persona[5])+" BUK:"+str(Buk_ID_TIPO_IDEN)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -296,7 +296,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[6] != Buk_NACIONAL:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en NACIONAL= SPI:'+results_eo_persona[6]+" BUK:"+Buk_NACIONAL
+                    Actividad = 'Diferencia en NACIONAL= SPI:'+str(results_eo_persona[6])+" BUK:"+str(Buk_NACIONAL)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -307,7 +307,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[7] != Buk_NUM_IDEN:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en NUM_IDEN= SPI:'+results_eo_persona[7]+" BUK:"+Buk_NUM_IDEN
+                    Actividad = 'Diferencia en NUM_IDEN= SPI:'+str(results_eo_persona[7])+" BUK:"+str(Buk_NUM_IDEN)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -329,7 +329,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[9].strftime('%Y-%m-%d') != Buk_FECHA_NA:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en FECHA_NA= SPI:'+results_eo_persona[9].strftime('%Y-%m-%d')+" BUK:"+Buk_FECHA_NA
+                    Actividad = 'Diferencia en FECHA_NA= SPI:'+str(results_eo_persona[9].strftime('%Y-%m-%d'))+" BUK:"+str(Buk_FECHA_NA)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -340,7 +340,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[10] != Buk_CIUDAD_NA:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en CIUDAD_NA= SPI:'+results_eo_persona[10]+" BUK:"+Buk_CIUDAD_NA
+                    Actividad = 'Diferencia en CIUDAD_NA= SPI:'+str(results_eo_persona[10])+" BUK:"+str(Buk_CIUDAD_NA)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -351,7 +351,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[11] != Buk_ID_ENTFE_NA:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_ENTFE_NA= SPI:'+results_eo_persona[11]+" BUK:"+Buk_ID_ENTFE_NA
+                    Actividad = 'Diferencia en ID_ENTFE_NA= SPI:'+str(results_eo_persona[11])+" BUK:"+str(Buk_ID_ENTFE_NA)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -362,7 +362,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[12] != Buk_ID_PAIS_NA:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_PAIS_NA= SPI:'+results_eo_persona[12]+" BUK:"+Buk_ID_PAIS_NA
+                    Actividad = 'Diferencia en ID_PAIS_NA= SPI:'+str(results_eo_persona[12])+" BUK:"+str(Buk_ID_PAIS_NA)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -373,7 +373,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[13] != Buk_SEXO:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en SEXO= SPI:'+results_eo_persona[13]+" BUK:"+Buk_SEXO
+                    Actividad = 'Diferencia en SEXO= SPI:'+str(results_eo_persona[13])+" BUK:"+str(Buk_SEXO)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -384,7 +384,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[14] != Buk_EDO_CIVIL:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en EDO_CIVIL= SPI:'+results_eo_persona[14]+" BUK:"+Buk_EDO_CIVIL
+                    Actividad = 'Diferencia en EDO_CIVIL= SPI:'+str(results_eo_persona[14])+" BUK:"+str(Buk_EDO_CIVIL)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -395,7 +395,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[15] != Buk_ZURDO:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ZURDO= SPI:'+results_eo_persona[15]+" BUK:"+Buk_ZURDO
+                    Actividad = 'Diferencia en ZURDO= SPI:'+str(results_eo_persona[15])+" BUK:"+str(Buk_ZURDO)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -407,7 +407,7 @@ try:
                 if results_eo_persona[18] != Buk_DIRECCION:
                     print('Diferencia en DIRECCION= SPI:',results_eo_persona[18]," BUK:",Buk_DIRECCION)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en DIRECCION= SPI:'+results_eo_persona[18]+" BUK:"+Buk_DIRECCION
+                    Actividad = 'Diferencia en DIRECCION= SPI:'+str(results_eo_persona[18])+" BUK:"+str(Buk_DIRECCION)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -419,7 +419,7 @@ try:
                 if results_eo_persona[19] != Buk_CIUDAD:
                     print('Diferencia en CIUDAD= SPI:',results_eo_persona[19]," BUK:",Buk_CIUDAD)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en CIUDAD= SPI:'+results_eo_persona[19]+" BUK:"+Buk_CIUDAD
+                    Actividad = 'Diferencia en CIUDAD= SPI:'+str(results_eo_persona[19])+" BUK:"+str(Buk_CIUDAD)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -430,7 +430,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[20] != Buk_ID_ENTFE:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_ENTFE= SPI:'+results_eo_persona[20]+" BUK:"+Buk_ID_ENTFE
+                    Actividad = 'Diferencia en ID_ENTFE= SPI:'+str(results_eo_persona[20])+" BUK:"+str(Buk_ID_ENTFE)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -441,7 +441,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[21] != Buk_ID_PAIS:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_PAIS= SPI:'+results_eo_persona[21]+" BUK:"+Buk_ID_PAIS
+                    Actividad = 'Diferencia en ID_PAIS= SPI:'+str(results_eo_persona[21])+" BUK:"+str(Buk_ID_PAIS)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -474,7 +474,7 @@ try:
                     #####*********************************************
                 if results_eo_persona[29] != Buk_E_MAIL1:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en E_MAIL1= SPI:'+results_eo_persona[29]+" BUK:"+Buk_E_MAIL1
+                    Actividad = 'Diferencia en E_MAIL1= SPI:'+str(results_eo_persona[29])+" BUK:"+str(Buk_E_MAIL1)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()

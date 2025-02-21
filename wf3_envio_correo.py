@@ -18,34 +18,46 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
+email_user = os.getenv("EMAIL_USER")
+email_pass = os.getenv("EMAIL_PASS")
+
 #credenciales postgresql
-dbnamePg = "spibuk"
-userPg = "postgres"
-passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-hostPg = "64.225.104.69"    # Cambia esto al host de tu base de datos
-portPg = "5432"             # Puerto predeterminado de PostgreSQL
+#dbnamePg = "spibuk"
+#userPg = "postgres"
+#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
+#hostPg = "64.225.104.69"    # Cambia esto al host de tu base de datos
+#portPg = "5432"             # Puerto predeterminado de PostgreSQL
 
 try:
     #  Configura la conexión al servidor SMTP
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
+    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
+    server.login(email_user, email_pass)
+    print("Conexión exitosa a smtp")
 
    #conecta con la table de control de ingreso de empleados
+    #connectionPg = psycopg2.connect(
+    #    dbname=dbnamePg,
+    #    user=userPg,
+    #    password=passwordPg,
+    #    host=hostPg,
+    #    port=portPg
+    #)
     connectionPg = psycopg2.connect(
-        dbname=dbnamePg,
-        user=userPg,
-        password=passwordPg,
-        host=hostPg,
-        port=portPg
+        dbname=postgre_service,
+        user=postgre_user,
+        password=postgre_pass,
+        host=postgre_host,
+        port=postgre_port
     )
     print("Conexión exitosa a PostgreSQL")
     cursorApiEmpleado = connectionPg.cursor()
     try:
         # Iniciar la transacción
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        #sql_query = "select * from public.workflow_api_email  where status ='En progreso'"
-        sql_query = "select * from public.workflow_api_email where id =999"
+        #sql_query = "select * from public.workflow_api_email  where status ='En progreso' and document_number is not null"
+        sql_query = "select * from public.workflow_api_email where id =1047"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
         employee_id=''

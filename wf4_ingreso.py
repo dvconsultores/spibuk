@@ -23,35 +23,42 @@ postgre_service = os.getenv("POSTGRE_SERVICE")
 
 
 # credenciales ORACLE
-username = 'INFOCENT'
-password = 'M4NZ4N1LL4'
-host = '192.168.254.201'
-port = 1521
-service_name = 'spitest'
+#username = 'INFOCENT'
+#password = 'M4NZ4N1LL4'
+#host = '192.168.254.201'
+#port = 1521
+#service_name = 'spitest'
 
-dsn = cx_Oracle.makedsn(host, port, service_name)
+dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 
 
 #credenciales postgresql
-dbnamePg = "spibuk"
-userPg = "postgres"
-passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
-portPg = "5432"       # Puerto predeterminado de PostgreSQL
+#dbnamePg = "spibuk"
+#userPg = "postgres"
+#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
+#hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
+#portPg = "5432"       # Puerto predeterminado de PostgreSQL
 
 try:
     ##*************************************** ORACLE SPI
-    connection = cx_Oracle.connect(username, password, dsn)
+    connection = cx_Oracle.connect(oracle_user, oracle_pass, dsn)
     print("Conexión exitosa a Oracle SPI")
 
     cursor = connection.cursor()
    #conecta con la table de control de ingreso de empleados
+    #connectionPg = psycopg2.connect(
+    #    dbname=dbnamePg,
+    #    user=userPg,
+    #    password=passwordPg,
+    #    host=hostPg,
+    #    port=portPg
+    #)
     connectionPg = psycopg2.connect(
-        dbname=dbnamePg,
-        user=userPg,
-        password=passwordPg,
-        host=hostPg,
-        port=portPg
+        dbname=postgre_service,
+        user=postgre_user,
+        password=postgre_pass,
+        host=postgre_host,
+        port=postgre_port
     )
     print("Conexión exitosa a PostgreSQL")
     cursorApiEmpleado = connectionPg.cursor()
@@ -71,7 +78,8 @@ try:
 
             ##*************************************** API BUK
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
-            headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             responseEmpleado = requests.get(api_url, headers=headers)
             if responseEmpleado.status_code == 200:
                 dataEmpleado = responseEmpleado.json()
@@ -130,7 +138,8 @@ try:
                 cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #####*********************************************
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/companies"
-            headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             responseEmpresa = requests.get(api_url, headers=headers)
             if responseEmpresa.status_code == 200:
                 dataEmpresa = responseEmpresa.json() 
@@ -406,10 +415,6 @@ try:
             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
 
 
-
-
-
-
             #####*********************************************
             # PREPARANDO DATA TA_RELACION_PUESTO 
             Buk_ID_UNIDAD=dataEmpleado.get("data", []).get("current_job", {}).get("cost_center")  #LA UNIDAD ES EL CENTRO DE COSTOS
@@ -626,12 +631,14 @@ try:
         # Confirmar la transacción si no hubo errores
         connection.commit()
         #connection.rollback()
+        
         # LISTA EL CONTENIDO DEL LOG
-        sql_query = "SELECT * FROM log"
-        cursorApiEmpleado.execute(sql_query)
-        results_log = cursorApiEmpleado.fetchall()
-        for row in results_log:
-            print(row)
+        #sql_query = "SELECT * FROM log"
+        #cursorApiEmpleado.execute(sql_query)
+        #results_log = cursorApiEmpleado.fetchall()
+        #for row in results_log:
+        #    print(row)
+        
         connectionPg.commit()
         #connectionPg.rollback()
         print("Transacción exitosa")

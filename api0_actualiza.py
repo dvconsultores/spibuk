@@ -18,22 +18,29 @@ postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
 #credenciales postgresql
-dbnamePg = "spibuk"
-userPg = "postgres"
-passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
-portPg = "5432"       # Puerto predeterminado de PostgreSQL
+#dbnamePg = "spibuk"
+#userPg = "postgres"
+#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
+#hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
+#portPg = "5432"       # Puerto predeterminado de PostgreSQL
 
 
 try:
 
    #conecta con la table de control de ingreso de empleados
+    #connectionPg1 = psycopg2.connect(
+    #    dbname=dbnamePg,
+    #    user=userPg,
+    #    password=passwordPg,
+    #    host=hostPg,
+    #    port=portPg
+    #)
     connectionPg = psycopg2.connect(
-        dbname=dbnamePg,
-        user=userPg,
-        password=passwordPg,
-        host=hostPg,
-        port=portPg
+        dbname=postgre_service,
+        user=postgre_user,
+        password=postgre_pass,
+        host=postgre_host,
+        port=postgre_port
     )
     print("Conexión exitosa a PostgreSQL")
     cursorApiEmpleado = connectionPg.cursor()
@@ -44,7 +51,7 @@ try:
     #sql_query = "SELECT * FROM empleados where id=16749"
     cursorApiEmpleado.execute(sql_query)
     results = cursorApiEmpleado.fetchall()
-    print(results)
+    #print(results)
 
     employee_id=''
     for row in results:
@@ -53,7 +60,8 @@ try:
 
         ##*************************************** API BUK
         api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
-        headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+        #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+        headers = {'auth_token': os.getenv('AUTH_TOKEN')}
         responseEmpleado = requests.get(api_url, headers=headers)
 
         if responseEmpleado.status_code == 200:

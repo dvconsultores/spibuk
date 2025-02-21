@@ -26,41 +26,56 @@ postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
 
-# credenciales ORACLE
-username = 'INFOCENT'
-password = 'M4NZ4N1LL4'
-host = '192.168.254.201'
-port = 1521
-service_name = 'spitest'
+email_user = os.getenv("EMAIL_USER")
+email_pass = os.getenv("EMAIL_PASS")
 
-dsn = cx_Oracle.makedsn(host, port, service_name)
+
+
+# credenciales ORACLE
+#username = 'INFOCENT'
+#password = 'M4NZ4N1LL4'
+#host = '192.168.254.201'
+#port = 1521
+#service_name = 'spitest'
+
+#dsn = cx_Oracle.makedsn(host, port, service_name)
+dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 
 
 #credenciales postgresql
-dbnamePg = "spibuk"
-userPg = "postgres"
-passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
-portPg = "5432"       # Puerto predeterminado de PostgreSQL
+#dbnamePg = "spibuk"
+#userPg = "postgres"
+#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
+#hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
+#portPg = "5432"       # Puerto predeterminado de PostgreSQL
 
 try:
     #  Configura la conexión al servidor SMTP
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
+    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
+    server.login(email_user, email_pass)
+    print("Conexión exitosa a smtp")
 
     ##*************************************** ORACLE SPI
-    connection = cx_Oracle.connect(username, password, dsn)
+    connection = cx_Oracle.connect(oracle_user, oracle_pass, dsn)
     print("Conexión exitosa a Oracle SPI")
 
     cursor = connection.cursor()
    #conecta con la table de control de ingreso de empleados
+    #connectionPg = psycopg2.connect(
+    #    dbname=dbnamePg,
+    #    user=userPg,
+    #    password=passwordPg,
+    #    host=hostPg,
+    #    port=portPg
+    #)
     connectionPg = psycopg2.connect(
-        dbname=dbnamePg,
-        user=userPg,
-        password=passwordPg,
-        host=hostPg,
-        port=portPg
+        dbname=postgre_service,
+        user=postgre_user,
+        password=postgre_pass,
+        host=postgre_host,
+        port=postgre_port
     )
     print("Conexión exitosa a PostgreSQL")
     cursorApiEmpleado = connectionPg.cursor()
@@ -68,7 +83,7 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (22257,25041)"
+        sql_query = "SELECT * FROM empleados where ID  in (26409) and status_process is null"
         #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
@@ -85,7 +100,8 @@ try:
 
             ##*************************************** API BUK
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
-            headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             responseEmpleado = requests.get(api_url, headers=headers)
             if responseEmpleado.status_code == 200:
                 dataEmpleado = responseEmpleado.json()
@@ -137,7 +153,8 @@ try:
                 # cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #####*********************************************
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/companies"
-            headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+            headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             responseEmpresa = requests.get(api_url, headers=headers)
             if responseEmpresa.status_code == 200:
                 dataEmpresa = responseEmpresa.json() 
@@ -284,8 +301,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[5] != Buk_ID_TIPO_IDEN:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'ID_TIPO_IDEN':str(Buk_ID_TIPO_IDEN),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET ID_TIPO_IDEN=:ID_TIPO_IDEN
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_TIPO_IDEN= SPI:'+str(results_eo_persona[5])+" BUK:"+str(Buk_ID_TIPO_IDEN)
+                    Actividad = 'Diferencia en ID_TIPO_IDEN= SPI:'+str(results_eo_persona[5])+" BUK:"+str(Buk_ID_TIPO_IDEN)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -295,8 +321,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[6] != Buk_NACIONAL:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'NACIONAL':str(Buk_NACIONAL),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET NACIONAL=:NACIONAL
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en NACIONAL= SPI:'+str(results_eo_persona[6])+" BUK:"+str(Buk_NACIONAL)
+                    Actividad = 'Diferencia en NACIONAL= SPI:'+str(results_eo_persona[6])+" BUK:"+str(Buk_NACIONAL)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -339,8 +374,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[10] != Buk_CIUDAD_NA:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'CIUDAD_NA':str(Buk_CIUDAD_NA),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET CIUDAD_NA=:CIUDAD_NA
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en CIUDAD_NA= SPI:'+str(results_eo_persona[10])+" BUK:"+str(Buk_CIUDAD_NA)
+                    Actividad = 'Diferencia en CIUDAD_NA= SPI:'+str(results_eo_persona[10])+" BUK:"+str(Buk_CIUDAD_NA)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -350,8 +394,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[11] != Buk_ID_ENTFE_NA:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'ID_ENTFE_NA':str(Buk_ID_ENTFE_NA),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET ID_ENTFE_NA=:ID_ENTFE_NA
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_ENTFE_NA= SPI:'+str(results_eo_persona[11])+" BUK:"+str(Buk_ID_ENTFE_NA)
+                    Actividad = 'Diferencia en ID_ENTFE_NA= SPI:'+str(results_eo_persona[11])+" BUK:"+str(Buk_ID_ENTFE_NA)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -361,8 +414,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[12] != Buk_ID_PAIS_NA:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'ID_PAIS_NA':str(Buk_ID_PAIS_NA),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET ID_PAIS_NA=:ID_PAIS_NA
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_PAIS_NA= SPI:'+str(results_eo_persona[12])+" BUK:"+str(Buk_ID_PAIS_NA)
+                    Actividad = 'Diferencia en ID_PAIS_NA= SPI:'+str(results_eo_persona[12])+" BUK:"+str(Buk_ID_PAIS_NA)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -372,8 +434,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[13] != Buk_SEXO:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'SEXO':(Buk_SEXO),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET SEXO=:SEXO
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en SEXO= SPI:'+str(results_eo_persona[13])+" BUK:"+str(Buk_SEXO)
+                    Actividad = 'Diferencia en SEXO= SPI:'+str(results_eo_persona[13])+" BUK:"+str(Buk_SEXO)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -383,8 +454,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[14] != Buk_EDO_CIVIL:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'EDO_CIVIL':str(Buk_EDO_CIVIL),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET EDO_CIVIL=:EDO_CIVIL
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en EDO_CIVIL= SPI:'+str(results_eo_persona[14])+" BUK:"+str(Buk_EDO_CIVIL)
+                    Actividad = 'Diferencia en EDO_CIVIL= SPI:'+str(results_eo_persona[14])+" BUK:"+str(Buk_EDO_CIVIL)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -417,9 +497,18 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[19] != Buk_CIUDAD:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'CIUDAD':str(Buk_CIUDAD),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET CIUDAD=:CIUDAD
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     print('Diferencia en CIUDAD= SPI:',results_eo_persona[19]," BUK:",Buk_CIUDAD)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en CIUDAD= SPI:'+str(results_eo_persona[19])+" BUK:"+str(Buk_CIUDAD)
+                    Actividad = 'Diferencia en CIUDAD= SPI:'+str(results_eo_persona[19])+" BUK:"+str(Buk_CIUDAD)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -429,8 +518,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[20] != Buk_ID_ENTFE:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'ID_ENTFE':str(Buk_ID_ENTFE),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET ID_ENTFE=:ID_ENTFE
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_ENTFE= SPI:'+str(results_eo_persona[20])+" BUK:"+str(Buk_ID_ENTFE)
+                    Actividad = 'Diferencia en ID_ENTFE= SPI:'+str(results_eo_persona[20])+" BUK:"+str(Buk_ID_ENTFE)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -440,8 +538,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[21] != Buk_ID_PAIS:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'ID_PAIS':str(Buk_ID_PAIS),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET ID_PAIS=:ID_PAIS
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en ID_PAIS= SPI:'+str(results_eo_persona[21])+" BUK:"+str(Buk_ID_PAIS)
+                    Actividad = 'Diferencia en ID_PAIS= SPI:'+str(results_eo_persona[21])+" BUK:"+str(Buk_ID_PAIS)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -550,11 +657,14 @@ try:
                         SELECT COUNT(*) AS CUENTA  
                         FROM TA_RELACION_LABORAL trl ,EO_PERSONA ep 
                         WHERE trl.ID_PERSONA  = ep.ID 
-                        AND trl.ID_EMPRESA!='BA' AND trl.F_RETIRO IS NOT NULL AND ep.NUM_IDEN =:Buk_NUM_IDEN trl.ID_EMPRESA = :id_empresa 
+                        AND trl.ID_EMPRESA!='BA' AND trl.F_RETIRO IS NOT NULL AND ep.NUM_IDEN =:Buk_NUM_IDEN and trl.ID_EMPRESA = :id_empresa 
                     """
+                    print(consulta)
                     cursor.execute(consulta, parametros)
+
                     count_TA_RELACION_LABORAL = cursor.fetchone()[0]
                     if count_TA_RELACION_LABORAL==0:
+                        print('11')
                         Actividad = 'El colaborador tendrá una nueva relacion laboral manteniendo la misma ficha. Ficha:'+str(Buk_FICHA)
                         print(Actividad)
                         Estatus = "INFO"
@@ -565,6 +675,7 @@ try:
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                         #####*********************************************  
                     else:
+                        print('22')
                         # L   O   G   ****************************************************************
                         Actividad = 'El colaborador ya ha trabajado en esta nueva compañia('+str(company_id)+'). Se va generar una nueva ficha.'
                         print(Actividad)
@@ -1160,10 +1271,10 @@ try:
         #connection.rollback()
         
         # LISTA EL CONTENIDO DEL LOG
-        sql_query = 'SELECT * FROM log WHERE id_buk = \'' + str(transacction_id) + '\''
+        #sql_query = 'SELECT * FROM log WHERE id_buk = \'' + str(transacction_id) + '\''
 
-        cursorApiEmpleado.execute(sql_query)
-        results_log = cursorApiEmpleado.fetchall()
+        #cursorApiEmpleado.execute(sql_query)
+        #results_log = cursorApiEmpleado.fetchall()
         #for row in results_log:
         #    print(row)
         

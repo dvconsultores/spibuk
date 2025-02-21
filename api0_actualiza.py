@@ -76,7 +76,8 @@ try:
             print("Error al realizar la solicitud GET a la API. :", responseEmpleado.status_code)
 
         api_url = "https://alfonzorivas.buk.co/api/v1/colombia/companies"
-        headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+        #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
+        headers = {'auth_token': os.getenv('AUTH_TOKEN')}
         responseEmpresa = requests.get(api_url, headers=headers)
         if responseEmpresa.status_code == 200:
             dataEmpresa = responseEmpresa.json() 
@@ -85,6 +86,12 @@ try:
                 elemento_encontrado = result[0]
                 ID_EMPRESA = elemento_encontrado.get("custom_attributes", {}).get("codigo_empresa") #CODIGO COMPAÑIA BUK-> SPI
                 #print(f"El valor de 'codigo_empresa' es: {ID_EMPRESA,}")
+
+
+                print(employee_id,transacction_id,Name, Buk_NUM_IDEN,ID_EMPRESA)
+                consulta = "UPDATE empleados set name=%s,ci=%s,company=%s where id=%s "
+                cursorApiEmpleado.execute(consulta, (Name, Buk_NUM_IDEN,ID_EMPRESA,transacction_id))
+
             else:
                 ID_EMPRESA=''
                 print("No se encontró Empresa.")
@@ -92,9 +99,9 @@ try:
         else:
             print("Error al realizar la solicitud GET a la API. :", responseEmpresa.status_code)
 
-        print(employee_id,transacction_id,Name, Buk_NUM_IDEN,ID_EMPRESA)
-        consulta = "UPDATE empleados set name=%s,ci=%s,company=%s where id=%s "
-        cursorApiEmpleado.execute(consulta, (Name, Buk_NUM_IDEN,ID_EMPRESA,transacction_id))
+        #print(employee_id,transacction_id,Name, Buk_NUM_IDEN,ID_EMPRESA)
+        #consulta = "UPDATE empleados set name=%s,ci=%s,company=%s where id=%s "
+        #cursorApiEmpleado.execute(consulta, (Name, Buk_NUM_IDEN,ID_EMPRESA,transacction_id))
        
 
     #ENDFOR
@@ -105,7 +112,7 @@ try:
     connectionPg.commit()
     #connectionPg.rollback()
 
-    print("Transacción exitosa")
+    print("Transacción terminada")
 
 
     # Cierra el cursor y la conexión

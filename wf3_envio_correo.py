@@ -1,3 +1,25 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+ Este programa gestiona el envio de correo para notificar la ficha reservada y posterioemente habiitar el INGRESO del colaborador.
+ 
+ Esto se realiza mediante la informacion de la tala workflow_alta de PostgreSQL.
+
+ Primer momento:
+    Buscamos en workflow_api_email ese colaborador y verificamos si el colaborador existe en la tabla workflow_alta, si NO existe en workflow_alta se le reserva una una ficha, se 
+    inserta en workflow_alta y se envia un correo.( Si existe, no se hace nada)
+
+    INSERT INTO public.workflow_alta (id,document_number,ficha,fecha_email)
+
+Segundo momento:
+    Buscamos en workflow_ficha ese colaborador y verificamos si el colaborador existe en la tabla workflow_alta, si existe en workflow_alta actualizamos la tabla workflow_alta.
+ 
+    update public.workflow_alta set employee_id=%s,name=%s,status_ingreso=%s WHERE id::integer = %s
+
+"""
+
 import psycopg2
 from datetime import datetime
 
@@ -76,21 +98,21 @@ try:
             var_created_by_last_name=row[24] 
             var_created_by_segundo_apellido=row[25] 
             var_created_by_email=row[26] 
-            print('empleado ','',transacction_id)
+            #print('empleado ','',transacction_id)
 
             sql_query = 'SELECT COUNT(*) FROM public.workflow_alta WHERE id::integer = '+str(transacction_id)
             cursorApiEmpleado.execute(sql_query)
             count_workflow_alta= cursorApiEmpleado.fetchone()[0]
-            print(sql_query)
+            #print(sql_query)
             # Verificar si el COLABORADOR EXISTE
             if count_workflow_alta == 0:
-                print("El colaborador NO EXISTE")
+                #print("El colaborador NO EXISTE")
                 # reservo el numero de ficha
                 sql_query = "SELECT * FROM correlativos"
                 cursorApiEmpleado.execute(sql_query)
                 results_correlativo = cursorApiEmpleado.fetchone()
                 Buk_FICHA=results_correlativo[0]
-                print(Buk_FICHA)
+                #print(Buk_FICHA)
                 # Crea el mensaje
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Asignación de Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + var_first_name + ', ' + var_last_name
@@ -141,13 +163,13 @@ Sistema Automático de gestión de ingresos.
                     if count_result != 0:
                         var_document_number = var_document_number.replace('.', '')  # Remove all periods
                         var_document_number = str(var_document_number)  # Convert to integer
-                        print('lll',var_document_number)
+                        #print('lll',var_document_number)
 
                         sql_query = "SELECT * FROM public.empleados_buk where CAST(replace(document_number, '.', '') AS INTEGER) = "+var_document_number
-                        print(sql_query)
+                        #print(sql_query)
                         cursorApiEmpleado.execute(sql_query)
                         count_result = cursorApiEmpleado.fetchone()
-                        print(count_result)
+                        #print(count_result)
                         var_employee_id=count_result[1]
                         var_name=count_result[5]
                         fecha_actual = datetime.now()
@@ -159,7 +181,7 @@ Sistema Automático de gestión de ingresos.
         #connection.rollback()
         connectionPg.commit()
         #connectionPg.rollback()
-        print("Transacción exitosa")
+        print("Transacción finalizada")
     except Exception as error:
         print(f"Ocurrió un error: {error}")
         # Manejar excepciones relacionadas con la base de datos

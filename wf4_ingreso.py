@@ -1,3 +1,17 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+    Este programa gestiona en INGRESO de colaboradores a SPI.
+ 
+    Esto se realiza mediante la informacion de la tala workflow_alta de PostgreSQL.
+
+    select * from public.workflow_alta where status_ingreso is not null and status_process is null
+    Nota: esta logina de banderas lo controla el wf3_envio_correo.py
+
+"""
+
 import cx_Oracle
 import requests
 import psycopg2
@@ -51,7 +65,7 @@ try:
         for row in results:
             employee_id=row[4]
             transacction_id=row[0]
-            print('empleado json',employee_id,'',transacction_id)
+            #print('empleado json',employee_id,'',transacction_id)
 
             ##*************************************** API BUK
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
@@ -65,22 +79,22 @@ try:
                 print("Error al realizar la solicitud GET a la API. :", responseEmpleado.status_code)
             Buk_FICHA_JSON=(dataEmpleado.get("data", []).get("custom_attributes", {}).get("Ficha"))[:30]
             Buk_NUM_IDEN=(dataEmpleado.get("data", []).get("rut"))[:20]
-            print('Buk_NUM_IDEN',Buk_NUM_IDEN.replace('.', ''))
-            print('Buk_FICHA_JSON',Buk_FICHA_JSON)
+            #print('Buk_NUM_IDEN',Buk_NUM_IDEN.replace('.', ''))
+            #print('Buk_FICHA_JSON',Buk_FICHA_JSON)
             sql_query = 'SELECT COUNT(*) FROM EO_PERSONA WHERE NUM_IDEN = '+Buk_NUM_IDEN.replace('.', '')
             cursor.execute(sql_query)
             count_result = cursor.fetchone()[0]
             # Verificar si el COLABORADOR EXISTE
             if count_result == 0:
-                print("El colaborador NO EXISTE")
+                #print("El colaborador NO EXISTE")
                 sql_query = "SELECT * FROM correlativos"
                 cursorApiEmpleado.execute(sql_query)
                 results_correlativo = cursorApiEmpleado.fetchone()
                 Buk_ID=results_correlativo[1]
                 #Buk_FICHA=results_correlativo[0] antes lo contralala la tabla correlativos ahora se reserva antes por el workflow
                 Buk_FICHA=row[2]
-                print(Buk_ID)
-                print(Buk_FICHA)
+                #print(Buk_ID)
+                #print(Buk_FICHA)
                 # L   O   G   ****************************************************************
                 Actividad = "El colaborador NO EXISTE"
                 Estatus = "INFO"
@@ -91,7 +105,7 @@ try:
                 cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #####*********************************************
             else:
-                print(f"El colaborador EXISTE: {count_result}")
+                #print(f"El colaborador EXISTE: {count_result}")
                 sql_query = 'SELECT ID FROM EO_PERSONA WHERE NUM_IDEN = '+Buk_NUM_IDEN.replace('.', '')
                 #print('sql_query',sql_query)
                 cursor.execute(sql_query)
@@ -102,8 +116,8 @@ try:
                 results_correlativo = cursorApiEmpleado.fetchone()
                 #Buk_FICHA=results_correlativo[0] antes lo contralala la tabla correlativos ahora se reserva antes por el workflow
                 Buk_FICHA=row[2]
-                print(Buk_ID)
-                print(Buk_FICHA)
+                #print(Buk_ID)
+                #print(Buk_FICHA)
                 # L   O   G   ****************************************************************
                 Actividad = "El colaborador EXISTE"
                 Estatus = "INFO"
@@ -124,9 +138,9 @@ try:
                 if result:
                     elemento_encontrado = result[0]
                     ID_EMPRESA = elemento_encontrado.get("custom_attributes", {}).get("codigo_empresa") #CODIGO COMPAÑIA BUK-> SPI
-                    print(f"El valor de 'codigo_empresa' es: {ID_EMPRESA,}")
-                else:
-                    print("No se encontró ningún elemento con ID igual a 10.")
+                    #print(f"El valor de 'codigo_empresa' es: {ID_EMPRESA,}")
+                #else:
+                    #print("No se encontró ningún elemento con ID igual a 10.")
 
             else:
                 print("Error al realizar la solicitud GET a la API. :", responseEmpresa.status_code)
@@ -145,10 +159,10 @@ try:
             consulta = """
                     SELECT CODIGO FROM SPI_ENTIDAD_FEDERAL WHERE CODIGO_PAIS = 'VEN' AND UPPER(TRIM(NOMBRE)) = :Buk_ESTADO
             """
-            print(consulta)
+            #print(consulta)
             cursor.execute(consulta, parametros)
             Buk_ID_ENTFE_NA = cursor.fetchone()[0]
-            print('Buk_ESTADO:',Buk_ESTADO,'Buk_ID_ENTFE_NA:',Buk_ID_ENTFE_NA)
+            #print('Buk_ESTADO:',Buk_ESTADO,'Buk_ID_ENTFE_NA:',Buk_ID_ENTFE_NA)
 
             #DETERMINAR EL CODIGO DE LOCALIDAD
             Buk_SEDE=(dataEmpleado.get("data", []).get("custom_attributes", {}).get("Sede"))[:30]
@@ -159,7 +173,7 @@ try:
             cursorApiEmpleado.execute(consulta, (Buk_SEDE, ID_EMPRESA))
             results = cursorApiEmpleado.fetchone()
             Buk_LOCALIDAD=results[0]
-            print('Buk_LOCALIDAD',Buk_LOCALIDAD)
+            #print('Buk_LOCALIDAD',Buk_LOCALIDAD)
             Buk_NOMBRE=(dataEmpleado.get("data", []).get("first_name"))[:120]
             partes = Buk_NOMBRE.split(" ")
             if len(partes) >= 2:
@@ -172,7 +186,7 @@ try:
             Buk_ID_TIPO_IDEN=1
             Buk_NACIONAL=(dataEmpleado.get("data", []).get("nationality"))[:50]
             Buk_NUM_IDEN=(dataEmpleado.get("data", []).get("rut")).replace('.', '')[:20]
-            print('Buk_NUM_IDEN',Buk_NUM_IDEN)
+            #print('Buk_NUM_IDEN',Buk_NUM_IDEN)
             Buk_PASAPORTE=(dataEmpleado.get("data", []).get("rut")).replace('.', '')[:10]
             #Buk_FECHA_NA=datetime.strptime((dataEmpleado.get("data", []).get("birthday")), '%Y-%m-%d')
             Buk_FECHA_NA=(dataEmpleado.get("data", []).get("birthday"))
@@ -183,7 +197,7 @@ try:
             Buk_SEXO='1' if dataEmpleado.get("data", []).get("gender")=='M' else '2'          
             #Buk_EDO_CIVIL=(dataEmpleado.get("data", []).get("civil_status"))[:0].upper()
             Buk_EDO_CIVIL = (dataEmpleado.get("data", {}).get("civil_status", "")[:1] or "").upper()
-            print('Buk_EDO_CIVIL',Buk_EDO_CIVIL)
+            #print('Buk_EDO_CIVIL',Buk_EDO_CIVIL)
             Buk_ZURDO=0
             Buk_TIPO_SANGRE=' '
             Buk_FACTOR_RH=' '
@@ -211,7 +225,7 @@ try:
             Buk_IN_REL_TRAB=''
             Buk_USRCRE='ETL'
             #----
-            print('Buk_FECHA_NA',Buk_FECHA_NA) #TO_DATE(:fecha_na, 'YYYY-MM-DD') 
+            #print('Buk_FECHA_NA',Buk_FECHA_NA) #TO_DATE(:fecha_na, 'YYYY-MM-DD') 
 
             if count_result == 0:         
                 values_eo_persona = {
@@ -309,7 +323,7 @@ try:
             "AND ID_EMPRESA!='BA' AND F_RETIRO IS NULL AND ep.NUM_IDEN ="+(dataEmpleado.get("data", []).get("current_job", {}).get("boss", {}).get("rut")).replace('.', '')[:30]
             cursor.execute(sql_query)
             results_boss = cursor.fetchone()
-            print('results_boss',results_boss)
+            #print('results_boss',results_boss)
             Buk_ID_EMPRESA_BOSS=results_boss[0]
             Buk_FICHA_JEFE=results_boss[1]
             if Buk_ID_EMPRESA==Buk_ID_EMPRESA_BOSS:
@@ -325,8 +339,8 @@ try:
                 cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #####*********************************************    
                 Buk_FICHA_JEFE=' '         
-            print('boss',Buk_ID_EMPRESA_BOSS,Buk_FICHA_JEFE)
-            print('ojo',Buk_ID_EMPRESA,Buk_FICHA)
+            #print('boss',Buk_ID_EMPRESA_BOSS,Buk_FICHA_JEFE)
+            #print('ojo',Buk_ID_EMPRESA,Buk_FICHA)
 
             values_ta_relacion_laboral = {   
                 'Buk_ID_EMPRESA' :Buk_ID_EMPRESA,
@@ -411,9 +425,9 @@ try:
             """
             cursor.execute(consulta, parametros)
             resultados = cursor.fetchone()
-            print('resultados CARGO',resultados)
+            #print('resultados CARGO',resultados)
             if resultados is  None or resultados[0] is  None:
-                print('no existe el cargo')
+                #print('no existe el cargo')
                 # CREAR EL NUEVO CARGO+++++++++++++++++++++++++++++++++++++++++++++++++
                 values_eo_cargo = {   
                     'Buk_ID_EMPRESA' :Buk_ID_EMPRESA,
@@ -426,7 +440,7 @@ try:
                 "VALUES(:Buk_ID_EMPRESA,  :Buk_ID_CARGO ,UPPER(:Buk_ID_CARGO_NOMBRE), :Buk_USRCRE, SYSDATE)"
                 cursor.execute(sql_query,values_eo_cargo)
                 # L   O   G   ****************************************************************
-                Actividad = "Se crea una EO_CARGO "
+                Actividad = "Se crea un EO_CARGO "
                 Estatus = "INFO"
                 fecha_actual = datetime.now()
                 consulta = "INSERT INTO public.log "+ \
@@ -454,7 +468,7 @@ try:
             """
             cursor.execute(consulta, parametros)
             resultados = cursor.fetchone()
-            print('resultados',resultados)
+            #print('resultados',resultados)
             Buk_Nivel_de_Seniority=(dataEmpleado.get("data", []).get("current_job", {}).get("custom_attributes", {}).get("Nivel_de_Seniority")).upper()
             if resultados is  None or resultados[0] is  None:
                 # DETERMINAR EL PROXIMO ID PARA EL PUESTO ++++++++++++++++++++++++++++++
@@ -462,8 +476,8 @@ try:
                     'id_empresa':Buk_ID_EMPRESA,
                     'id_unidad':Buk_ID_UNIDAD,
                 }
-                print('Buk_ID_EMPRESA',Buk_ID_EMPRESA)
-                print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
+                #print('Buk_ID_EMPRESA',Buk_ID_EMPRESA)
+                #print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
 
                 consulta = """
                     SELECT NVL(MAX(id), 0) + 1  FROM EO_PUESTO ep 
@@ -473,7 +487,7 @@ try:
                 cursor.execute(consulta, parametros)
                 resultados_nuevo_puesto = cursor.fetchone()   
                 Buk_ID_PUESTO=resultados_nuevo_puesto[0]   
-                print('Buk_ID_PUESTO',Buk_ID_PUESTO,'Buk_ID_CARGO:',Buk_ID_CARGO,'Buk_ID_UNIDAD:',Buk_ID_UNIDAD)
+                #print('Buk_ID_PUESTO',Buk_ID_PUESTO,'Buk_ID_CARGO:',Buk_ID_CARGO,'Buk_ID_UNIDAD:',Buk_ID_UNIDAD)
                 # CREAR EL NUEVO PUESTO+++++++++++++++++++++++++++++++++++++++++++++++++
                 values_eo_puesto = {   
                     'Buk_ID_EMPRESA' :Buk_ID_EMPRESA,
@@ -508,10 +522,10 @@ try:
                 "VALUES(%s, %s, %s, %s, %s, %s)"
                 cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #####*********************************************
-            print('Buk_ID_CARGO_NOMBRE',Buk_ID_CARGO,Buk_ID_CARGO_NOMBRE)
-            print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
-            print('Buk_ID_EMPRESA',Buk_ID_EMPRESA)
-            print('Buk_ID_PUESTO',Buk_ID_PUESTO)
+            #print('Buk_ID_CARGO_NOMBRE',Buk_ID_CARGO,Buk_ID_CARGO_NOMBRE)
+            #print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
+            #print('Buk_ID_EMPRESA',Buk_ID_EMPRESA)
+            #print('Buk_ID_PUESTO',Buk_ID_PUESTO)
             values_ta_relacion_puesto = {   
                 'Buk_ID_EMPRESA' :Buk_ID_EMPRESA,
                 'Buk_FICHA' :Buk_FICHA,
@@ -617,7 +631,7 @@ try:
         
         connectionPg.commit()
         #connectionPg.rollback()
-        print("Transacción exitosa")
+        print("Transacción finalizada")
     except cx_Oracle.DatabaseError as e:
         # Manejar excepciones relacionadas con la base de datos
         print("Error de base de datos:", e)

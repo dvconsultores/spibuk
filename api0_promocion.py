@@ -1,3 +1,13 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+ Este programa gestiona las promociones de los empleados las transferencias y las reclasificaciones
+ a partir del tabla empledos de PostgreSQL.
+
+"""
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -62,7 +72,7 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (26409) and status_process is null"
+        sql_query = "SELECT * FROM empleados where ID  in (23836) and status_process is null"
         #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
@@ -75,7 +85,7 @@ try:
             name_id=row[7]
             ci_id=row[8]
             company_id=row[9]
-            print('empleado json',employee_id,'',transacction_id,ci_id,company_id)
+            #print('empleado json',employee_id,'',transacction_id,ci_id,company_id)
 
             ##*************************************** API BUK
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
@@ -605,11 +615,11 @@ try:
                 Buk_ID_CARGO_NOMBRE=(dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("custom_attributes", {}).get("cargo_abreviado")).upper()
                 Buk_Nivel_de_Seniority=(dataEmpleado.get("data", []).get("current_job", {}).get("custom_attributes", {}).get("Nivel_de_Seniority")).upper()
                 Buk_ID_CARGO_NOMBRE_SR= Buk_ID_CARGO_NOMBRE+" "+Buk_Nivel_de_Seniority
-                print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
-                print('Buk_ID_CARGO',Buk_ID_CARGO)
-                print('Buk_ID_CARGO_NOMBRE',Buk_ID_CARGO_NOMBRE)
-                print('Buk_Nivel_de_Seniority',Buk_Nivel_de_Seniority)
-                print('Buk_ID_CARGO_NOMBRE_SR',Buk_ID_CARGO_NOMBRE_SR)
+                #print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
+                #print('Buk_ID_CARGO',Buk_ID_CARGO)
+                #print('Buk_ID_CARGO_NOMBRE',Buk_ID_CARGO_NOMBRE)
+                #print('Buk_Nivel_de_Seniority',Buk_Nivel_de_Seniority)
+                #print('Buk_ID_CARGO_NOMBRE_SR',Buk_ID_CARGO_NOMBRE_SR)
 
                 if Buk_FICHA!=FICHA_RelacionLaboral:
                     print('Diferencia en FICHA. SPI;',FICHA_RelacionLaboral,' BUK:',Buk_FICHA)
@@ -637,12 +647,12 @@ try:
                         WHERE trl.ID_PERSONA  = ep.ID 
                         AND trl.ID_EMPRESA!='BA' AND trl.F_RETIRO IS NOT NULL AND ep.NUM_IDEN =:Buk_NUM_IDEN and trl.ID_EMPRESA = :id_empresa 
                     """
-                    print(consulta)
+                    #print(consulta)
                     cursor.execute(consulta, parametros)
 
                     count_TA_RELACION_LABORAL = cursor.fetchone()[0]
                     if count_TA_RELACION_LABORAL==0:
-                        print('11')
+                        #print('11')
                         Actividad = 'El colaborador tendrá una nueva relacion laboral manteniendo la misma ficha. Ficha:'+str(Buk_FICHA)
                         print(Actividad)
                         Estatus = "INFO"
@@ -653,7 +663,7 @@ try:
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                         #####*********************************************  
                     else:
-                        print('22')
+                        #print('22')
                         # L   O   G   ****************************************************************
                         Actividad = 'El colaborador ya ha trabajado en esta nueva compañia('+str(company_id)+'). Se va generar una nueva ficha.'
                         print(Actividad)
@@ -698,10 +708,10 @@ try:
                     """
                     cursor.execute(consulta, parametros)
                     results_EO_CARGO = cursor.fetchone()
-                    print('results_EO_CARGO',results_EO_CARGO)
+                    #print('results_EO_CARGO',results_EO_CARGO)
                     if results_EO_CARGO is  None or results_EO_CARGO[0] is  None or not results_EO_CARGO:
                         id_cambio='10017'  # PROMOCION
-                        print('NO EXISTE EO_CARGO SE DEBE CREAR')
+                        #print('NO EXISTE EO_CARGO SE DEBE CREAR')
                         # CREAR EL NUEVO CARGO+++++++++++++++++++++++++++++++++++++++++++++++++
                         values_eo_cargo = {   
                             'Buk_ID_EMPRESA' :company_id,
@@ -737,7 +747,7 @@ try:
                     cursor.execute(consulta, parametros)
                     resultados_nuevo_puesto = cursor.fetchone()   
                     Buk_ID_PUESTO=resultados_nuevo_puesto[0]
-                    print('Buk_ID_PUESTO',Buk_ID_PUESTO,parametros,resultados_nuevo_puesto)
+                    #print('Buk_ID_PUESTO',Buk_ID_PUESTO,parametros,resultados_nuevo_puesto)
 
 
                     values_eo_puesto = {   
@@ -749,7 +759,7 @@ try:
                         'Buk_F_INGRESO':Buk_F_INGRESO,
                         'Buk_USRCRE' :Buk_USRCRE,
                     }    
-                    print('values_eo_puesto',values_eo_puesto)              
+                    #print('values_eo_puesto',values_eo_puesto)              
 
                     # SE CREA EL NUEVO PUESTO
                     sql_query = "INSERT INTO INFOCENT.EO_PUESTO "+ \
@@ -757,7 +767,7 @@ try:
                     "VALUES(:Buk_ID_EMPRESA, :Buk_ID_UNIDAD, :Buk_ID_PUESTO, :Buk_ID_CARGO_NOMBRE, :Buk_ID_CARGO,TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD') ,SYSDATE+300000, :Buk_USRCRE, SYSDATE)"
                     
                     cursor.execute(sql_query,values_eo_puesto)
-                    print('2')
+                    #print('2')
                     # L   O   G   ****************************************************************
                     Actividad = "Se crea un NUEVO EO_PUESTO. Puesto_ID="+str(Buk_ID_PUESTO)+", Puesto="+Buk_ID_CARGO_NOMBRE_SR+'en compañia='+str(company_id)+", unidad="+Buk_ID_UNIDAD+" "
                     Estatus = "INFO"
@@ -852,8 +862,8 @@ try:
                             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                             #####*********************************************    
                             Buk_FICHA_JEFE=' '         
-                        print('boss',Buk_ID_EMPRESA_BOSS,Buk_FICHA_JEFE)
-                        print('ojo',company_id,Buk_FICHA)
+                        #print('boss',Buk_ID_EMPRESA_BOSS,Buk_FICHA_JEFE)
+                        #print('ojo',company_id,Buk_FICHA)
                     #endif 
 
                     # EVALUAR SI TIENE TA_HIST_CONTRATO_TRABAJO
@@ -884,7 +894,7 @@ try:
                                     WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND FECHA_FIN IS NULL
                             """
                             cursor.execute(consulta, parametros)
-                            print('results_TA_HIST_CONTRATO_TRABAJO[1]',results_TA_HIST_CONTRATO_TRABAJO[1],Buk_ID_CONT_TRAB)
+                            #print('results_TA_HIST_CONTRATO_TRABAJO[1]',results_TA_HIST_CONTRATO_TRABAJO[1],Buk_ID_CONT_TRAB)
 
                             # L   O   G   ****************************************************************
                             Actividad = "Se da de BAJA TA_HIST_CONTRATO_TRABAJO para la ficha="+Buk_FICHA+" y el Buk_ID_CONT_TRAB="+results_TA_HIST_CONTRATO_TRABAJO[1]
@@ -991,10 +1001,10 @@ try:
                         """
                         cursor.execute(consulta, parametros)
                         results_EO_CARGO = cursor.fetchone()
-                        print('results_EO_CARGO',results_EO_CARGO)
+                        #print('results_EO_CARGO',results_EO_CARGO)
                         if results_EO_CARGO is  None or results_EO_CARGO[0] is  None or not results_EO_CARGO:
                             id_cambio='10017'  # PROMOCION
-                            print('NO EXISTE EO_CARGO SE DEBE CREAR')
+                            #print('NO EXISTE EO_CARGO SE DEBE CREAR')
                             # CREAR EL NUEVO CARGO+++++++++++++++++++++++++++++++++++++++++++++++++
                             values_eo_cargo = {   
                                 'Buk_ID_EMPRESA' :company_id,
@@ -1032,10 +1042,10 @@ try:
                         cursor.execute(consulta, parametros)
                         results_EO_PUESTO = cursor.fetchone()
                         
-                        print(results_EO_PUESTO,parametros)
+                        #print(results_EO_PUESTO,parametros)
                         #NOMBRE_PUESTO_results_EO_PUESTO=results_EO_PUESTO[3]
                         if not results_EO_PUESTO:
-                            print('NO EXISTE EO_PUESTO SE DEBE CREAR')
+                            #print('NO EXISTE EO_PUESTO SE DEBE CREAR')
                             id_cambio='10017'
                             if Buk_ID_UNIDAD!=results_TA_RELACION_PUESTO[3]:
                                 if results_EO_CARGO is  None or results_EO_CARGO[0] is  None or not results_EO_CARGO:
@@ -1053,10 +1063,10 @@ try:
                         else:
                             #####*********************************************
                             if results_EO_PUESTO[3]!=Buk_ID_CARGO_NOMBRE_SR:
-                                print('Cambio de seniority')
+                                #print('Cambio de seniority')
                                 id_cambio='10017'  # PROMOCION
-                                print(results_EO_PUESTO[3],Buk_ID_CARGO_NOMBRE_SR)
-                                print('Cambio de seniority')
+                                #print(results_EO_PUESTO[3],Buk_ID_CARGO_NOMBRE_SR)
+                                #print('Cambio de seniority')
                                 # L   O   G   ****************************************************************
                                 Actividad = "Se procesa un cambio de Senionity EO_PUESTO. SPI="+results_EO_PUESTO[3]+" y BUK="+Buk_ID_CARGO_NOMBRE_SR+" "
                                 Estatus = "INFO"
@@ -1114,7 +1124,7 @@ try:
                             cursor.execute(consulta, parametros)
                             resultados_nuevo_puesto = cursor.fetchone()   
                             Buk_ID_PUESTO=resultados_nuevo_puesto[0]
-                            print('Buk_ID_PUESTO',Buk_ID_PUESTO,parametros,resultados_nuevo_puesto)
+                            #print('Buk_ID_PUESTO',Buk_ID_PUESTO,parametros,resultados_nuevo_puesto)
 
 
                             values_eo_puesto = {   
@@ -1126,7 +1136,7 @@ try:
                                 'Buk_F_INGRESO':Buk_F_INGRESO,
                                 'Buk_USRCRE' :Buk_USRCRE,
                             }    
-                            print('values_eo_puesto',values_eo_puesto)              
+                            #print('values_eo_puesto',values_eo_puesto)              
 
                             # SE CREA EL NUEVO SENIORITY
                             sql_query = "INSERT INTO INFOCENT.EO_PUESTO "+ \
@@ -1134,7 +1144,7 @@ try:
                             "VALUES(:Buk_ID_EMPRESA, :Buk_ID_UNIDAD, :Buk_ID_PUESTO, :Buk_ID_CARGO_NOMBRE, :Buk_ID_CARGO,TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD') ,SYSDATE+300000, :Buk_USRCRE, SYSDATE)"
                             
                             cursor.execute(sql_query,values_eo_puesto)
-                            print('2')
+                            #print('2')
                             # L   O   G   ****************************************************************
                             Actividad = "Se crea un NUEVO EO_PUESTO. Puesto_ID="+str(Buk_ID_PUESTO)+", Puesto="+Buk_ID_CARGO_NOMBRE_SR+" "
                             Estatus = "INFO"
@@ -1259,7 +1269,7 @@ try:
         #connectionPg.commit()
         #connectionPg.rollback()
         
-        print("Transacción exitosa")
+        print("Transacción Finalizada")
     except cx_Oracle.DatabaseError as e:
         # Manejar excepciones relacionadas con la base de datos
         print("Error de base de datos:", e)

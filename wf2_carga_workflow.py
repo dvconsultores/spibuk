@@ -1,3 +1,19 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+ Este programa carga los registros para envio de email, y control de creacion de fichas de la api de BUK que registra el workflow en las 
+ tablas workflow_api_email, workflow_api_ficha de PostgreSQL respectivamente.
+ las condicones son:
+
+    if operation["title"] == "ETAPA 1. GESTIÓN de ingreso":
+        selected_data_email.append({
+
+    if operation["title"] == "Notificación: Totalmente aprobado. Nómina.":
+        selected_data_ficha.append({
+
+"""
 #import cx_Oracle
 from sqlalchemy import create_engine
 import requests
@@ -43,27 +59,28 @@ try:
         # La tabla existe, puedes eliminar los registros
         cursor_email.execute("DELETE FROM workflow_api_email")
         connectionPg.commit()
-        print("elimima workflow_api_email")
+        #print("elimima workflow_api_email")
 
     if cursor_ficha.fetchone():
         # La tabla existe, puedes eliminar los registros
         cursor_ficha.execute("DELETE FROM workflow_api_ficha")
         connectionPg.commit()
-        print("elimima workflow_api_ficha")
+        #print("elimima workflow_api_ficha")
 
 
-    print("empieza carga de api")
+    #print("empieza carga de api")
     ##*************************************** API BUK
     api_url = "https://alfonzorivas.buk.co/api/v1/workflow/alta/processes"
     headers = {'auth_token': os.getenv('AUTH_TOKEN')}
     responseEmpleado = requests.get(api_url, headers=headers)
-    print("carga de api OK")
+    #print("carga de api OK")
 
     if responseEmpleado.status_code == 200:
         dataEmpleado = responseEmpleado.json()
         total_pages = dataEmpleado["pagination"]["total_pages"]
         for page in range(1, total_pages + 1):
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!pagina:',page)
+            #print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!pagina:',page)
+            print(f'Procesando página {page} de {total_pages}')
             # Obtener la página actual
             url = f"{api_url}?page={page}"
             headers = {'auth_token': os.getenv('AUTH_TOKEN')}
@@ -106,8 +123,8 @@ try:
                             "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
                             "created_by_email": item["created_by"]["email"],
                         })
-                        print('IF',item["title"])
-                        print('operations',operation["title"])
+                        #print('IF',item["title"])
+                        #print('operations',operation["title"])
                     if operation["title"] == "Notificación: Totalmente aprobado. Nómina.":
                         # Si la operación está completada, agregar el elemento a la lista selected_data
                         selected_data_ficha.append({
@@ -139,27 +156,27 @@ try:
                             "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
                             "created_by_email": item["created_by"]["email"],
                         })
-                    print('procesando')
+                    #print('procesando')
                     #endif
                 #endfor
-                print('sale de for operation in item["operations"]:')
+                #print('sale de for operation in item["operations"]:')
             #endfor
-            print('sale de for item in data:')
+            #print('sale de for item in data:')
 
-            print('df inicia creado')
+            #print('df inicia creado')
             df_email = pd.DataFrame(selected_data_email)
             df_ficha = pd.DataFrame(selected_data_ficha)
-            print('df fin creado')
+            #print('df fin creado')
             #print(df)
             #df.to_sql('mi_tabla', con=connectionPg, if_exists='append', index=False)
-            print('df.to_sql inicia creado')
+            #print('df.to_sql inicia creado')
             df_email.to_sql('workflow_api_email', engine, if_exists='append', index=False)
             df_ficha.to_sql('workflow_api_ficha', engine, if_exists='append', index=False)
-            print('df.to_sql fin creado')
+            #print('df.to_sql fin creado')
 
-            print('inserta el dataframe en la tabla')
+            #print('inserta el dataframe en la tabla')
 
-    print("Transacción exitosa")
+    print("Transacción finalizada")
 
 
     # Cierra el cursor y la conexión

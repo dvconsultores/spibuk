@@ -1,13 +1,12 @@
 import cx_Oracle
-import requests
+#import requests
 import psycopg2
-from datetime import datetime
-
-
+#from datetime import datetime
 from dotenv import load_dotenv
+import os
+
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
-import os
 
 oracle_user = os.getenv("ORACLE_USER")
 oracle_pass = os.getenv("ORACLE_PASS")
@@ -21,37 +20,21 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
-
-# credenciales ORACLE
-username = 'INFOCENT'
-password = 'M4NZ4N1LL4'
-host = '192.168.254.201'
-port = 1521
-service_name = 'spitest'
-
-dsn = cx_Oracle.makedsn(host, port, service_name)
-
-
-#credenciales postgresql
-dbnamePg = "spibuk"
-userPg = "postgres"
-passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-hostPg = "64.225.104.69"    # Cambia esto al host de tu base de datos
-portPg = "5432"             # Puerto predeterminado de PostgreSQL
+dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 
 try:
     ##*************************************** ORACLE SPI
-    connectionOra = cx_Oracle.connect(username, password, dsn)
+    connectionOra = cx_Oracle.connect(oracle_user, oracle_pass, dsn)
     print("Conexión exitosa a Oracle SPI")
 
     cursorOracle = connectionOra.cursor()
    #conecta con la table de control de ingreso de empleados
     connectionPg = psycopg2.connect(
-        dbname=dbnamePg,
-        user=userPg,
-        password=passwordPg,
-        host=hostPg,
-        port=portPg
+        dbname=postgre_service,
+        user=postgre_user,
+        password=postgre_pass,
+        host=postgre_host,
+        port=postgre_port
     )
     print("Conexión exitosa a PostgreSQL")
     cursorApiFamily = connectionPg.cursor()
@@ -87,9 +70,6 @@ try:
                 id_parentesco='MADRE'
             if(family_relation_buk)== 'husband':
                 id_parentesco='CONYU'
-
-            
-
             sql_query = f"SELECT ID FROM EO_PERSONA WHERE NUM_IDEN = {document_number_buk}"
             #print('sql_query',sql_query)
             cursorOracle.execute(sql_query)
@@ -106,17 +86,6 @@ try:
                 id_pariente=pariente_oracle[2]
                 actividad='SE ACTUALIZAN LOA CAMPOS: )'
                 FlagCambios=0
-                #cursorOracle.execute(
-                #    f"""
-                #    UPDATE ta_parientes
-                #    SET nombre = '{nombre}',
-                #        apellido = '{apellido}',
-                #        sexo = '{sexo}',
-                #        parentesco = '{parentesco}'
-                #    WHERE id_pariente = {id_pariente}
-                #    """
-                #)
-                #connectionOra.commit()
                 print(f"Pariente con id {Buk_ID} existe. DATOS SPI= 1N:{pariente_oracle[3]} 2N:{pariente_oracle[4]} 1A:{pariente_oracle[5]} 2A:{pariente_oracle[6]} . DATOS BUK= 1N:{family_first_name_buk} 1A:{family_first_surname_buk} 2A:{family_second_surname_buk} ")
             # Si el pariente no existe, crearlo
             else:
@@ -149,7 +118,7 @@ try:
                 BUK_edo_civil='C' if id_parentesco=='CONYU' else 'S'
                 BUK_usrcre='ETL'
                 BUK_discapacitado =0
-                print('1')
+                #print('1')
                 values_ta_parientes = {   
                     'BUK_id_persona' :BUK_id_persona,
                     'BUK_id_pariente' :BUK_id_pariente,
@@ -171,7 +140,6 @@ try:
                     'BUK_usrcre' :BUK_usrcre,
                     'BUK_discapacitado':BUK_discapacitado,
                 } 	
-
                 sql_query = "INSERT INTO ta_parientes (id_persona,id_pariente,id_parentesco,nombre1,nombre2,apellido1,apellido2,"+ \
                  "id_tipo_iden,nacional,num_iden,pasaporte,fecha_na,ciudad_na,id_entfe_na,"+ \
                  "id_pais_na,sexo,edo_civil,usrcre,feccre,discapacitado)"+ \
@@ -190,14 +158,14 @@ try:
         connectionOra.commit()
         #connectionOra.rollback()
         # LISTA EL CONTENIDO DEL LOG
-        sql_query = "SELECT * FROM log"
-        cursorApiFamily.execute(sql_query)
-        results_log = cursorApiFamily.fetchall()
-        for row in results_log:
-            print(row)
+        #sql_query = "SELECT * FROM log"
+        #cursorApiFamily.execute(sql_query)
+        #results_log = cursorApiFamily.fetchall()
+        #for row in results_log:
+        #    print(row)
         connectionPg.commit()
         #connectionPg.rollback()
-        print("Transacción exitosa")
+        print("Transacción finaizada")
     except cx_Oracle.DatabaseError as e:
         # Manejar excepciones relacionadas con la base de datos
         print("Error de base de datos:", e)

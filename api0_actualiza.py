@@ -1,3 +1,13 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+    Este programa actualiza la tabla empleados de PostgreSQL con los datos de la API de BUK.
+    La tabla empleados de PostgreSQL se carga de forma automatica por un trigger configurado en los Webhooks de BUK.
+
+"""
+
 #import cx_Oracle
 import requests
 import psycopg2

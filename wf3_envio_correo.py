@@ -21,12 +21,6 @@ postgre_service = os.getenv("POSTGRE_SERVICE")
 email_user = os.getenv("EMAIL_USER")
 email_pass = os.getenv("EMAIL_PASS")
 
-#credenciales postgresql
-#dbnamePg = "spibuk"
-#userPg = "postgres"
-#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-#hostPg = "64.225.104.69"    # Cambia esto al host de tu base de datos
-#portPg = "5432"             # Puerto predeterminado de PostgreSQL
 
 try:
     #  Configura la conexión al servidor SMTP
@@ -36,14 +30,6 @@ try:
     server.login(email_user, email_pass)
     print("Conexión exitosa a smtp")
 
-   #conecta con la table de control de ingreso de empleados
-    #connectionPg = psycopg2.connect(
-    #    dbname=dbnamePg,
-    #    user=userPg,
-    #    password=passwordPg,
-    #    host=hostPg,
-    #    port=portPg
-    #)
     connectionPg = psycopg2.connect(
         dbname=postgre_service,
         user=postgre_user,

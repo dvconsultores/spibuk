@@ -17,24 +17,9 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
-#credenciales postgresql
-#dbnamePg = "spibuk"
-#userPg = "postgres"
-#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-#hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
-#portPg = "5432"       # Puerto predeterminado de PostgreSQL
-
 
 try:
 
-   #conecta con la table de control de ingreso de empleados
-    #connectionPg1 = psycopg2.connect(
-    #    dbname=dbnamePg,
-    #    user=userPg,
-    #    password=passwordPg,
-    #    host=hostPg,
-    #    port=portPg
-    #)
     connectionPg = psycopg2.connect(
         dbname=postgre_service,
         user=postgre_user,
@@ -60,7 +45,6 @@ try:
 
         ##*************************************** API BUK
         api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
-        #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
         headers = {'auth_token': os.getenv('AUTH_TOKEN')}
         responseEmpleado = requests.get(api_url, headers=headers)
 
@@ -76,7 +60,6 @@ try:
             print("Error al realizar la solicitud GET a la API. :", responseEmpleado.status_code)
 
         api_url = "https://alfonzorivas.buk.co/api/v1/colombia/companies"
-        #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
         headers = {'auth_token': os.getenv('AUTH_TOKEN')}
         responseEmpresa = requests.get(api_url, headers=headers)
         if responseEmpresa.status_code == 200:

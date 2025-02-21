@@ -20,14 +20,6 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
-#credenciales postgresql
-#dbnamePg = "spibuk"
-#userPg = "postgres"
-#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-#hostPg = "64.225.104.69"    # Cambia esto al host de tu base de datos
-#portPg = "5432"             # Puerto predeterminado de PostgreSQL
-
-
 try:
     connectionPg = psycopg2.connect(
         dbname=postgre_service,
@@ -36,13 +28,6 @@ try:
         host=postgre_host,
         port=postgre_port
     )
-    #connectionPg = psycopg2.connect(
-    #    dbname=dbnamePg,
-    #    user=userPg,
-    #    password=passwordPg,
-    #    host=hostPg,
-    #    port=portPg
-    #)
     print("Conexión exitosa a PostgreSQL")
     engine = create_engine(f'postgresql://{postgre_user}:{postgre_pass}@{postgre_host}:{postgre_port}/{postgre_service}')
     
@@ -70,7 +55,6 @@ try:
     print("empieza carga de api")
     ##*************************************** API BUK
     api_url = "https://alfonzorivas.buk.co/api/v1/workflow/alta/processes"
-    #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
     headers = {'auth_token': os.getenv('AUTH_TOKEN')}
     responseEmpleado = requests.get(api_url, headers=headers)
     print("carga de api OK")
@@ -82,7 +66,6 @@ try:
             print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!pagina:',page)
             # Obtener la página actual
             url = f"{api_url}?page={page}"
-            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
             headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             response = requests.get(url, headers=headers)
             data = response.json()["data"]

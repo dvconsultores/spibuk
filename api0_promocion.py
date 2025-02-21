@@ -31,23 +31,9 @@ email_pass = os.getenv("EMAIL_PASS")
 
 
 
-# credenciales ORACLE
-#username = 'INFOCENT'
-#password = 'M4NZ4N1LL4'
-#host = '192.168.254.201'
-#port = 1521
-#service_name = 'spitest'
-
-#dsn = cx_Oracle.makedsn(host, port, service_name)
 dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 
 
-#credenciales postgresql
-#dbnamePg = "spibuk"
-#userPg = "postgres"
-#passwordPg = "Q84Z7zQ2kR0WamnV4r6RLpWYhdD8JwDX"
-#hostPg = "64.225.104.69"  # Cambia esto al host de tu base de datos
-#portPg = "5432"       # Puerto predeterminado de PostgreSQL
 
 try:
     #  Configura la conexión al servidor SMTP
@@ -63,13 +49,6 @@ try:
 
     cursor = connection.cursor()
    #conecta con la table de control de ingreso de empleados
-    #connectionPg = psycopg2.connect(
-    #    dbname=dbnamePg,
-    #    user=userPg,
-    #    password=passwordPg,
-    #    host=hostPg,
-    #    port=portPg
-    #)
     connectionPg = psycopg2.connect(
         dbname=postgre_service,
         user=postgre_user,
@@ -100,7 +79,6 @@ try:
 
             ##*************************************** API BUK
             api_url = "https://alfonzorivas.buk.co/api/v1/colombia/employees/"+employee_id
-            #headers = {'auth_token': 'QfhEF5gmYtzU26M6eE8xB4BY'}
             headers = {'auth_token': os.getenv('AUTH_TOKEN')}
             responseEmpleado = requests.get(api_url, headers=headers)
             if responseEmpleado.status_code == 200:

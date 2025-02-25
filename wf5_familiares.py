@@ -1,3 +1,13 @@
+"""
+Empresa:DvConsultores
+Por:    Jorge Luis Cuauro Gonzalez
+Fecha:  Febrero 2025
+Descripción:
+    Este programa actualiza la informacion de familiares (ta_parientes) en SPI a apartir de la 
+    tabla family_buk de PostgreSQL.
+
+"""
+
 import cx_Oracle
 #import requests
 import psycopg2

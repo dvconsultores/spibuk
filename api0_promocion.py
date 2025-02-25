@@ -72,7 +72,7 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (23836) and status_process is null"
+        sql_query = "SELECT * FROM empleados where ID  in (24903,24553) and status_process is null"
         #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
@@ -238,7 +238,10 @@ try:
                 Buk_E_MAIL1=(dataEmpleado.get("data", []).get("personal_email"))[:120]
             else:
                 Buk_E_MAIL1=''
-            Buk_E_MAIL2=''
+            if dataEmpleado.get("data", []).get("email"):
+                Buk_E_MAIL2=(dataEmpleado.get("data", []).get("email"))[:120]
+            else:
+                Buk_E_MAIL2=''
             Buk_IN_REL_TRAB=''
             Buk_USRCRE='ETL'
             Buk_F_INGRESO=(dataEmpleado.get("data", []).get("current_job", {}).get("start_date"))
@@ -1050,10 +1053,12 @@ try:
                             if Buk_ID_UNIDAD!=results_TA_RELACION_PUESTO[3]:
                                 if results_EO_CARGO is  None or results_EO_CARGO[0] is  None or not results_EO_CARGO:
                                     id_cambio='10017'  # PROMOCION
-                                else:
-                                    id_cambio='20010' # RECLASIFICACION
+                                    Actividad = "Se identifica una promoción de UNIDAD. SPI="+results_TA_RELACION_PUESTO[3]+" y BUK="+Buk_ID_UNIDAD+" "
+                                #else:
+                                #    id_cambio='20010' # RECLASIFICACION
                                 # L   O   G   ****************************************************************
-                                Actividad = "Se identifica una re-clasificación de UNIDAD. SPI="+results_TA_RELACION_PUESTO[3]+" y BUK="+Buk_ID_UNIDAD+" "
+                                #    Actividad = "Se identifica una re-clasificación de UNIDAD. SPI="+results_TA_RELACION_PUESTO[3]+" y BUK="+Buk_ID_UNIDAD+" "
+                                # L   O   G   ****************************************************************
                                 Estatus = "INFO"
                                 fecha_actual = datetime.now()
                                 consulta = "INSERT INTO public.log "+ \
@@ -1068,7 +1073,7 @@ try:
                                 #print(results_EO_PUESTO[3],Buk_ID_CARGO_NOMBRE_SR)
                                 #print('Cambio de seniority')
                                 # L   O   G   ****************************************************************
-                                Actividad = "Se procesa un cambio de Senionity EO_PUESTO. SPI="+results_EO_PUESTO[3]+" y BUK="+Buk_ID_CARGO_NOMBRE_SR+" "
+                                Actividad = "Se procesa una promoción por cambio de Senionity EO_PUESTO. SPI="+results_EO_PUESTO[3]+" y BUK="+Buk_ID_CARGO_NOMBRE_SR+" "
                                 Estatus = "INFO"
                                 fecha_actual = datetime.now()
                                 consulta = "INSERT INTO public.log "+ \
@@ -1078,39 +1083,6 @@ try:
                             #####*********************************************
 
                         if id_cambio!='':
-                            if False:
-                                # EN REVISION SI ES NECESARIO DAR DE ALTA UN NUEVO PUESTO O SOLO CAMBIAR EL SENIORITY
-                                # SE DA DE ALTA EL PUESTO CON EL SENIONITY ANTERIOR++++++++++++++++++++++++++++++++++++++++++++++++
-                                values_eo_puesto = {   
-                                    'Buk_ID_EMPRESA' :company_id,
-                                    'Buk_ID_UNIDAD' :results_TA_RELACION_PUESTO[3],
-                                    'Buk_ID_PUESTO' :results_TA_RELACION_PUESTO[4],
-                                    'Buk_ID_CARGO' :Buk_ID_CARGO,
-                                    'Buk_F_INGRESO' :Buk_F_INGRESO,
-                                    'Buk_USRCRE' :Buk_USRCRE,
-                                } 
-                                sql_query = """
-                                        UPDATE INFOCENT.EO_PUESTO SET 
-                                        FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD'),
-                                        USRACT=:Buk_USRCRE, 
-                                        FECACT=SYSDATE
-                                        WHERE ID_EMPRESA = :Buk_ID_EMPRESA 
-                                        AND ID = :Buk_ID_PUESTO 
-                                        AND ID_UNIDAD = :Buk_ID_UNIDAD 
-                                        AND ID_CARGO= :Buk_ID_CARGO 
-                                        AND FECHA_FIN>SYSDATE
-                                """ 
-                                print('update',consulta,values_eo_puesto)
-                                cursor.execute(sql_query, values_eo_puesto)
-                                # L   O   G   ****************************************************************
-                                Actividad = "Se coloca FECHA_FIN en EO_PUESTO. id :"+str(results_TA_RELACION_PUESTO[4])+" ( "+results_EO_PUESTO[3]+" )"
-                                Estatus = "INFO"
-                                fecha_actual = datetime.now()
-                                consulta = "INSERT INTO public.log "+ \
-                                "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
-                                "VALUES(%s, %s, %s, %s, %s, %s)"
-                                cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
-                                #####*********************************************
                             # COMO SE DEBE CREA UN NUEVO PUESTO DEBEMOS UBICAR EL PROXIMO ID PARA EL NUEVO PUESTO
                             parametros = {
                                 'id_empresa':company_id,

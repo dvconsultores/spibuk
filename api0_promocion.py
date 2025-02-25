@@ -234,14 +234,29 @@ try:
                 Buk_CELULAR = dataEmpleado.get("data", []).get("phone")[:120]
             except TypeError:
                 Buk_CELULAR = ""  
-            if dataEmpleado.get("data", []).get("personal_email"):
-                Buk_E_MAIL1=(dataEmpleado.get("data", []).get("personal_email"))[:120]
+
+
+            # esta es a logica de ingreso de colaboradores
+            if dataEmpleado.get("data", []).get("email"):
+                Buk_E_MAIL1=(dataEmpleado.get("data", []).get("email"))[:120]
             else:
                 Buk_E_MAIL1=''
-            if dataEmpleado.get("data", []).get("email"):
-                Buk_E_MAIL2=(dataEmpleado.get("data", []).get("email"))[:120]
+
+            if dataEmpleado.get("data", []).get("personal_email"):
+                Buk_E_MAIL2=(dataEmpleado.get("data", []).get("personal_email"))[:120]
             else:
                 Buk_E_MAIL2=''
+
+            # esta en la logica anterior
+            #if dataEmpleado.get("data", []).get("personal_email"):
+            #    Buk_E_MAIL1=(dataEmpleado.get("data", []).get("personal_email"))[:120]
+            #else:
+            #    Buk_E_MAIL1=''
+            #if dataEmpleado.get("data", []).get("email"):
+            #    Buk_E_MAIL2=(dataEmpleado.get("data", []).get("email"))[:120]
+            #else:
+            #    Buk_E_MAIL2=''
+
             Buk_IN_REL_TRAB=''
             Buk_USRCRE='ETL'
             Buk_F_INGRESO=(dataEmpleado.get("data", []).get("current_job", {}).get("start_date"))

@@ -1,16 +1,26 @@
-# Use the official Python image from the Docker Hub
+# Use the official Python slim image
 FROM python:3.11-slim
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Install required system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    python3-dev \
+    gcc \
+    g++ \
+    make \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Copy requirements file and install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container
+# Copy the application code
 COPY . .
 
 # Run the Python script

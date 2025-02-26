@@ -13,11 +13,17 @@ RUN apt-get update && apt-get install -y \
 # Copy the requirements file into the container
 COPY requirements.txt .
 
-# Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Print the contents of the requirements file (for debugging)e requirements file (for debugging)
+RUN cat requirements.txt
 
-# Copy the rest of the application code into the container
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txtinstall --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code into the containerapplication code into the container
 COPY . .
 
+
+
+CMD ["python", "wf0_main.py"]# Run the Python script
 # Run the Python script
 CMD ["python", "wf0_main.py"]

@@ -2,6 +2,7 @@ blinker
 certifi
 charset-normalizer
 click
+cx_Oracle
 Flask
 greenlet
 idna

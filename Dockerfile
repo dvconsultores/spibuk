@@ -13,19 +13,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install Oracle Instant Client
-RUN wget --tries=3 --retry-connrefused --waitretry=5 --no-check-certificate https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
-    unzip instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
-    mv instantclient_21_6 /usr/lib/oracle/21.6/client64 && \
-    rm instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
-    echo /usr/lib/oracle/21.6/client64 > /etc/ld.so.conf.d/oracle-instantclient.conf && \
-    ldconfig
 
 # Copy the requirements file into the container
 COPY requirements.txt .
-
-# Print the contents of the requirements file (for debugging)
-RUN cat requirements.txt
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt

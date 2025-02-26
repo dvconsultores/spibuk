@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Oracle Instant Client
-RUN wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
+RUN wget --tries=3 --retry-connrefused --waitretry=5 --no-check-certificate https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
     unzip instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \
     mv instantclient_21_6 /usr/lib/oracle/21.6/client64 && \
     rm instantclient-basiclite-linux.x64-21.6.0.0.0dbru.zip && \

@@ -27,4 +27,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/micro-ar:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/micro-buk-ar:latest

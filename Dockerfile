@@ -24,6 +24,9 @@ COPY instantclient_21_11 /usr/lib/oracle/21.11/client64
 ENV LD_LIBRARY_PATH=/usr/lib/oracle/21.11/client64:$LD_LIBRARY_PATH
 ENV PATH=/usr/lib/oracle/21.11/client64:$PATH
 
+# Ensure the Oracle Instant Client libraries are linked
+RUN echo "/usr/lib/oracle/21.11/client64" > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig
+
 # Copy requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

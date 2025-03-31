@@ -2,7 +2,6 @@ blinker
 certifi
 charset-normalizer
 click
-oracledb
 Flask
 greenlet
 idna
@@ -24,3 +23,4 @@ tzdata
 urllib3
 Werkzeug
 zipp
+cx_Oracle

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
     libaio1 \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the Oracle Instant Client from the project root into the container

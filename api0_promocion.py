@@ -29,12 +29,15 @@ oracle_host = os.getenv("ORACLE_HOST")
 oracle_port = os.getenv("ORACLE_PORT")
 oracle_service = os.getenv("ORACLE_SERVICE")
 
+
+
 postgre_user = os.getenv("POSTGRE_USER")
 postgre_pass = os.getenv("POSTGRE_PASS")
 postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
+print('postgre_service',postgre_pass)
 
 email_user = os.getenv("EMAIL_USER")
 email_pass = os.getenv("EMAIL_PASS")

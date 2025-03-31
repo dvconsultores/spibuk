@@ -24,3 +24,4 @@ urllib3
 Werkzeug
 zipp
 cx_Oracle
+python-dotenv

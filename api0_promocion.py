@@ -72,7 +72,7 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (24903,24553) and status_process is null"
+        sql_query = "SELECT * FROM empleados where ID  in (27319,26979,26774) and status_process is null"
         #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
@@ -216,6 +216,8 @@ try:
                 Buk_ID_PAIS_NA='VEN'
             Buk_SEXO='1' if dataEmpleado.get("data", []).get("gender")=='M' else '2'          
             Buk_EDO_CIVIL = (dataEmpleado.get("data", {}).get("civil_status", "")[:1] or "").upper()
+            if Buk_EDO_CIVIL =="U":
+                Buk_EDO_CIVIL="L"
             #print('Buk_EDO_CIVIL',Buk_EDO_CIVIL)
             Buk_ZURDO=0
             Buk_TIPO_SANGRE=' '
@@ -586,8 +588,17 @@ try:
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
                 if results_eo_persona[29] != Buk_E_MAIL1:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'E_MAIL1':str(Buk_E_MAIL1),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET E_MAIL1=:E_MAIL1
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
                     # L   O   G   ****************************************************************
-                    Actividad = 'Diferencia en E_MAIL1= SPI:'+str(results_eo_persona[29])+" BUK:"+str(Buk_E_MAIL1)
+                    Actividad = 'Diferencia en E_MAIL1= SPI:'+str(results_eo_persona[29])+" BUK:"+str(Buk_E_MAIL1)+". Update en EO_PERSONA"
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -596,6 +607,27 @@ try:
                     "VALUES(%s, %s, %s, %s, %s, %s)"
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
+                if results_eo_persona[30] != Buk_E_MAIL2:
+                    parametros = {
+                        'NUM_IDEN':Buk_NUM_IDEN.replace('.', ''),
+                        'E_MAIL2':str(Buk_E_MAIL2),
+                    }
+                    consulta = """
+                        UPDATE EO_PERSONA SET E_MAIL2=:E_MAIL2
+                            WHERE NUM_IDEN = :NUM_IDEN
+                        """
+                    cursor.execute(consulta, parametros)
+                    # L   O   G   ****************************************************************
+                    Actividad = 'Diferencia en E_MAIL2= SPI:'+str(results_eo_persona[30])+" BUK:"+str(Buk_E_MAIL2)+". Update en EO_PERSONA"
+                    print(Actividad)
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    #####*********************************************
+
                 if results_eo_persona[31] != Buk_IN_REL_TRAB:
                     # L   O   G   ****************************************************************
                     Actividad = 'Diferencia en IN_REL_TRAB= SPI:'+str(results_eo_persona[31])+" BUK:"+str(Buk_IN_REL_TRAB)
@@ -943,7 +975,8 @@ try:
                             'Buk_FICHA' :Buk_FICHA,
                             'Buk_ID_PERSONA' : Buk_ID,
                             'Buk_NUM_CONTRATO' : '1',
-                            'Buk_FECHA_INI' :Buk_F_INGRESO,
+                            #'Buk_FECHA_INI' :Buk_F_INGRESO,
+                            'Buk_FECHA_INI' :results_TA_HIST_CONTRATO_TRABAJO[6], # se cambia la logica por indicaciones de jeisa correo promocion del 21-mar-2025
                             'Buk_ID_CAMBIO' : '10011',
                             'Buk_USRCRE' :Buk_USRCRE,
                         }    

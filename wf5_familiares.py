@@ -55,6 +55,9 @@ try:
         #sql_query = "SELECT * FROM family_buk"
         documento='31.661.242' # para pruebas
         sql_query = f"SELECT * FROM family_buk where document_number= '{documento}'"
+
+        sql_query = f"select * from public.family_buk  where replace(document_number,'.','') in ('30664054')"
+
         cursorApiFamily.execute(sql_query)
         results = cursorApiFamily.fetchall()
         employee_id=''

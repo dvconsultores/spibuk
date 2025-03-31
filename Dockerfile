@@ -9,23 +9,26 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
     libaio1 \
-    gcc \
-    g++ \
-    make \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy the Oracle Instant Client from the project root into the container
+COPY instantclient_21_11 /opt/oracle/instantclient_21_11
+
+# Create the required symlink (critical for cx_Oracle)
+RUN cd /opt/oracle/instantclient_21_11 && \
+    ln -s libclntsh.so.21.1 libclntsh.so
+
+# Set Oracle environment variables
+ENV ORACLE_HOME=/opt/oracle/instantclient_21_11
+ENV LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
+ENV PATH=$ORACLE_HOME:$PATH
+
+# Update the linker cache (ensures the system finds the Oracle libraries)
+RUN echo "/opt/oracle/instantclient_21_11" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
+    ldconfig
 
 # Upgrade pip
 RUN pip install --upgrade pip
-
-# Copy the Oracle Instant Client files into the container
-COPY instantclient_21_11 /usr/lib/oracle/21.11/client64
-
-# Configure the Oracle Instant Client
-ENV LD_LIBRARY_PATH=/usr/lib/oracle/21.11/client64:$LD_LIBRARY_PATH
-ENV PATH=/usr/lib/oracle/21.11/client64:$PATH
-
-# Ensure the Oracle Instant Client libraries are linked
-RUN echo "/usr/lib/oracle/21.11/client64" > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig
 
 # Copy requirements file and install dependencies
 COPY requirements.txt .

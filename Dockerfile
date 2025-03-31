@@ -35,4 +35,5 @@ COPY . .
 # Verify cx_Oracle
 RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
 
-CMD ["python", "wf0_main.py"]
+# CMD ["python", "wf0_main.py"]
+CMD ["bash"]

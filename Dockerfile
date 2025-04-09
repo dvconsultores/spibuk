@@ -23,7 +23,7 @@ RUN echo "$ORACLE_HOME" > /etc/ld.so.conf.d/oracle.conf && \
     ldconfig
 
 # Force symlink for libclntsh.so
-RUN ln -s $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/libclntsh.so
+RUN ln -s $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/lib/libclntsh.so
 
 # Verify libs
 RUN ls -l $ORACLE_HOME && ldconfig -p | grep libclntsh

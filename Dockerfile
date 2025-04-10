@@ -22,8 +22,11 @@ ENV PATH=$ORACLE_HOME:$PATH
 RUN echo "$ORACLE_HOME" > /etc/ld.so.conf.d/oracle.conf && \
     ldconfig
 
-# Force symlink for libclntsh.so
-RUN ln -s $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/libclntsh.so
+    
+# Create the symlink expected by cx_Oracle
+RUN ln -s $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/libclntsh.so && \
+    ln -s $ORACLE_HOME $ORACLE_HOME/lib
+
 
 # Verify libs
 RUN ls -l $ORACLE_HOME && ldconfig -p | grep libclntsh

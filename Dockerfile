@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
@@ -10,36 +11,37 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Oracle Instant Client libs
-COPY ./instantclient_21_11 /opt/oracle/instantclient
+# Copy and unzip Oracle Instant Client zip
+COPY ./instantclient-basic-linux.x64-21.11.0.0.0dbru.zip /tmp/
 
-# Set Oracle env vars once
+RUN unzip /tmp/instantclient-basic-linux.x64-21.11.0.0.0dbru.zip -d /opt/oracle && \
+    mv /opt/oracle/instantclient_21_11 /opt/oracle/instantclient && \
+    rm /tmp/instantclient-basic-linux.x64-21.11.0.0.0dbru.zip
+
+# Set Oracle environment variables
 ENV ORACLE_HOME=/opt/oracle/instantclient
 ENV LD_LIBRARY_PATH=$ORACLE_HOME:$LD_LIBRARY_PATH
 ENV PATH=$ORACLE_HOME:$PATH
 
-# Create symlink for 'lib' folder so cx_Oracle finds expected layout
-RUN ln -sfn $ORACLE_HOME $ORACLE_HOME/lib
-
-# Add symbolic links for expected .so libraries
-RUN ln -sf $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/libclntsh.so && \
+# Symlinks for compatibility with cx_Oracle
+RUN ln -sfn $ORACLE_HOME $ORACLE_HOME/lib && \
+    ln -sf $ORACLE_HOME/libclntsh.so.21.1 $ORACLE_HOME/libclntsh.so && \
     ln -sf $ORACLE_HOME/libocci.so.21.1 $ORACLE_HOME/libocci.so && \
     ln -sf $ORACLE_HOME/libnnz21.so $ORACLE_HOME/libnnz.so && \
     echo "$ORACLE_HOME" > /etc/ld.so.conf.d/oracle.conf && \
     ldconfig
 
-# Verify Oracle libs
-RUN ls -l $ORACLE_HOME && ldconfig -p | grep libclntsh
+# Verify Oracle client setup
+RUN ls -l /opt/oracle/instantclient && ldconfig -p | grep clntsh
 
-# Install Python deps
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
+# Copy application code
 COPY . .
 
-# Verify cx_Oracle works
+# Verify cx_Oracle is importable
 RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
 
-# Default CMD
 CMD ["bash"]

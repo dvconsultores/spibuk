@@ -12,11 +12,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and unzip Oracle Instant Client zip
-COPY ./instantclient-basic-linux.x64-21.11.0.0.0dbru.zip /tmp/
+COPY ./instantclient_21_11.zip /tmp/
 
-RUN unzip /tmp/instantclient-basic-linux.x64-21.11.0.0.0dbru.zip -d /opt/oracle && \
+RUN unzip /tmp/instantclient_21_11.zip -d /opt/oracle && \
     mv /opt/oracle/instantclient_21_11 /opt/oracle/instantclient && \
-    rm /tmp/instantclient-basic-linux.x64-21.11.0.0.0dbru.zip
+    rm /tmp/instantclient_21_11.zip
 
 # Set Oracle environment variables
 ENV ORACLE_HOME=/opt/oracle/instantclient

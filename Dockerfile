@@ -1,13 +1,3 @@
-# Stage 1: Download FortiClient VPN
-FROM debian:bullseye-slim as downloader
-
-WORKDIR /tmp
-
-# Install wget and download the FortiClient VPN .deb file
-RUN apt-get update && apt-get install -y wget && \
-    wget https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb
-
-# Stage 2: Build the final image
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -21,17 +11,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy FortiClient VPN from the downloader stage
-COPY --from=downloader /tmp/forticlient_vpn_7.4.0.1636_amd64.deb /tmp/
-
-# Install FortiClient VPN using dpkg and fix dependencies
-RUN apt-get update && \
-    apt-get install -y /tmp/forticlient_vpn_7.4.0.1636_amd64.deb && \
-    apt-get -f install -y && \
-    rm /tmp/forticlient_vpn_7.4.0.1636_amd64.deb
-
-# Download and unzip Oracle Instant Client
+# Copy and unzip Oracle Instant Client zip
 COPY ./instantclient_21_11.zip /tmp/
+
 RUN unzip /tmp/instantclient_21_11.zip -d /opt/oracle && \
     mv /opt/oracle/instantclient_21_11 /opt/oracle/instantclient && \
     rm /tmp/instantclient_21_11.zip
@@ -56,22 +38,10 @@ RUN ls -l /opt/oracle/instantclient && ldconfig -p | grep clntsh
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Copy application code
 COPY . .
 
-# Add a script to manage VPN and application startup
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# Verify cx_Oracle is importable
+RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
 
-# Create a non-root user
-RUN useradd -ms /bin/bash appuser
-
-# Change ownership of the /app directory to the non-root user
-RUN chown -R appuser:appuser /app
-
-# Switch to the non-root user
-USER appuser
-
-# Set the entrypoint to the script
-ENTRYPOINT ["/app/start.sh"]
+CMD ["bash"]

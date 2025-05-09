@@ -1,3 +1,13 @@
+# Stage 1: Download FortiClient VPN
+FROM debian:bullseye-slim as downloader
+
+WORKDIR /tmp
+
+# Install wget and download the FortiClient VPN .deb file
+RUN apt-get update && apt-get install -y wget && \
+    wget https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb
+
+# Stage 2: Build the final image
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -9,14 +19,15 @@ RUN apt-get update && apt-get install -y \
     libaio1 \
     gcc \
     unzip \
-    wget \
     gdebi-core \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install FortiClient VPN
-RUN wget https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb && \
-    gdebi --non-interactive forticlient_vpn_7.4.0.1636_amd64.deb && \
-    rm forticlient_vpn_7.4.0.1636_amd64.deb
+# Copy FortiClient VPN from the downloader stage
+COPY --from=downloader /tmp/forticlient_vpn_7.4.0.1636_amd64.deb /tmp/
+
+# Install FortiClient VPN
+RUN gdebi --non-interactive /tmp/forticlient_vpn_7.4.0.1636_amd64.deb && \
+    rm /tmp/forticlient_vpn_7.4.0.1636_amd64.deb
 
 # Download and unzip Oracle Instant Client
 COPY ./instantclient_21_11.zip /tmp/

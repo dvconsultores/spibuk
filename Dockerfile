@@ -11,11 +11,10 @@ RUN apt-get update && apt-get install -y \
     unzip \
     wget \
     gdebi-core \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install FortiClient VPN
-RUN curl -O https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb && \
+RUN wget https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb && \
     gdebi --non-interactive forticlient_vpn_7.4.0.1636_amd64.deb && \
     rm forticlient_vpn_7.4.0.1636_amd64.deb
 

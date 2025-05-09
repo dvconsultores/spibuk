@@ -19,14 +19,15 @@ RUN apt-get update && apt-get install -y \
     libaio1 \
     gcc \
     unzip \
-    gdebi-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy FortiClient VPN from the downloader stage
 COPY --from=downloader /tmp/forticlient_vpn_7.4.0.1636_amd64.deb /tmp/
 
 # Install FortiClient VPN using dpkg and fix dependencies
-RUN gdebi --non-interactive /tmp/forticlient_vpn_7.4.0.1636_amd64.deb && \
+RUN apt-get update && \
+    apt-get install -y /tmp/forticlient_vpn_7.4.0.1636_amd64.deb && \
+    apt-get -f install -y && \
     rm /tmp/forticlient_vpn_7.4.0.1636_amd64.deb
 
 # Download and unzip Oracle Instant Client

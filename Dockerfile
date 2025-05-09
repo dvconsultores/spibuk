@@ -9,11 +9,18 @@ RUN apt-get update && apt-get install -y \
     libaio1 \
     gcc \
     unzip \
+    wget \
+    gdebi-core \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and unzip Oracle Instant Client zip
-COPY ./instantclient_21_11.zip /tmp/
+# Download and install FortiClient VPN
+RUN curl -O https://filestore.fortinet.com/forticlient/downloads/forticlient_vpn_7.4.0.1636_amd64.deb && \
+    gdebi --non-interactive forticlient_vpn_7.4.0.1636_amd64.deb && \
+    rm forticlient_vpn_7.4.0.1636_amd64.deb
 
+# Download and unzip Oracle Instant Client
+COPY ./instantclient_21_11.zip /tmp/
 RUN unzip /tmp/instantclient_21_11.zip -d /opt/oracle && \
     mv /opt/oracle/instantclient_21_11 /opt/oracle/instantclient && \
     rm /tmp/instantclient_21_11.zip
@@ -41,7 +48,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Verify cx_Oracle is importable
-RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
+# Add a script to manage VPN and application startup
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-CMD ["bash"]
+# Set the entrypoint to the script
+ENTRYPOINT ["/app/start.sh"]

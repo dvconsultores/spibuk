@@ -56,6 +56,14 @@ RUN ls -l /opt/oracle/instantclient && ldconfig -p | grep clntsh
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+
+# Copy application code
+COPY . .
+
+# Add a script to manage VPN and application startup
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Create a non-root user
 RUN useradd -ms /bin/bash appuser
 
@@ -64,13 +72,6 @@ RUN chown -R appuser:appuser /app
 
 # Switch to the non-root user
 USER appuser
-
-# Copy application code
-COPY . .
-
-# Add a script to manage VPN and application startup
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
 
 # Set the entrypoint to the script
 ENTRYPOINT ["/app/start.sh"]

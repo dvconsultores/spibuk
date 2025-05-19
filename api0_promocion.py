@@ -4,7 +4,7 @@ Por:    Jorge Luis Cuauro Gonzalez
 Fecha:  Febrero 2025
 Descripción:
  Este programa gestiona las promociones de los empleados las transferencias y las reclasificaciones
- a partir del tabla empledos de PostgreSQL.
+ a partir de lA tabla empleados de PostgreSQL.
 
 """
 
@@ -49,7 +49,6 @@ try:
     #  Configura la conexión al servidor SMTP
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
     server.login(email_user, email_pass)
     print("Conexión exitosa a smtp")
 
@@ -72,8 +71,8 @@ try:
         # Iniciar la transacción
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "SELECT * FROM empleados where ID  in (27319,26979,26774) and status_process is null"
-        #sql_query = "SELECT * FROM empleados where employee_id ='3662' and event_type  in ('employee_update','job_movement') and status_process is null"
+        #sql_query = "SELECT * FROM empleados where ID  in (29230) and status_process is null"
+        sql_query = "SELECT * FROM empleados where event_type  in ('employee_update','job_movement') and status_process is null"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
         employee_id=''
@@ -186,15 +185,49 @@ try:
             #print('Buk_ESTADO:',Buk_ESTADO,'Buk_ID_ENTFE_NA:',Buk_ID_ENTFE_NA)
 
             #DETERMINAR EL CODIGO DE LOCALIDAD
-            Buk_SEDE=(dataEmpleado.get("data", []).get("custom_attributes", {}).get("Sede"))[:30]
+            Buk_SEDE=(dataEmpleado.get("data", []).get("custom_attributes", {}).get("Sede").upper())[:30]
             Actividad = "Se crea una relación laboral en TA_RELACION_LABORAL."
             Estatus = "INFO"
             fecha_actual = datetime.now()
-            consulta = "Select  codloc from public.localidades where Sede=%s and CIA_CODCIA=%s  "
+            consulta = "Select  codloc from public.localidades where upper(Sede)=%s and CIA_CODCIA=%s  "
             cursorApiEmpleado.execute(consulta, (Buk_SEDE, ID_EMPRESA))
+            print(Buk_SEDE, ID_EMPRESA)
             results = cursorApiEmpleado.fetchone()
-            Buk_LOCALIDAD=results[0]
-            #print('Buk_LOCALIDAD',Buk_LOCALIDAD)
+            if results is None:
+                Buk_SEDE_Estado=(dataEmpleado.get("data", []).get("custom_attributes", {}).get("Estado").upper())[:30]
+                Buk_SEDE = f"%{Buk_SEDE}%"
+                consulta = "SELECT codloc FROM public.localidades WHERE UPPER(Sede) LIKE %s AND CIA_CODCIA = %s AND UPPER(Estado) = %s"
+                cursorApiEmpleado.execute(consulta, (Buk_SEDE, ID_EMPRESA, Buk_SEDE_Estado))
+                print(Buk_SEDE, ID_EMPRESA)
+                results = cursorApiEmpleado.fetchone()
+                if results is None:
+                    # L   O   G   ****************************************************************
+                    Actividad = 'Buk reporta la localidad: '+str(Buk_SEDE)+ 'y no existe en loclidades.'
+                    print(Actividad)
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    Buk_LOCALIDAD='999' # SIN LOCALIDAD
+                    #####*********************************************
+                else:
+                    # L   O   G   ****************************************************************
+                    Actividad = 'Buk reporta la localidad: '+str(Buk_SEDE)+ ' y no existe en loclidades. Pero se encuentra la localidad por estado.'
+                    print(Actividad)
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    Buk_LOCALIDAD='999' # SIN LOCALIDAD
+                    #####*********************************************                    
+                    Buk_LOCALIDAD=results[0]
+            else:
+                Buk_LOCALIDAD=results[0]
+            print('Buk_LOCALIDAD',Buk_LOCALIDAD)
             Buk_NOMBRE=(dataEmpleado.get("data", []).get("first_name"))[:120]
             partes = Buk_NOMBRE.split(" ")
             if len(partes) >= 2:
@@ -261,6 +294,7 @@ try:
 
             Buk_IN_REL_TRAB=''
             Buk_USRCRE='ETL'
+            Buk_USRACT='ETL'
             Buk_F_INGRESO=(dataEmpleado.get("data", []).get("current_job", {}).get("start_date"))
 
             if count_result == 1:         
@@ -671,12 +705,82 @@ try:
                 #print('Buk_Nivel_de_Seniority',Buk_Nivel_de_Seniority)
                 #print('Buk_ID_CARGO_NOMBRE_SR',Buk_ID_CARGO_NOMBRE_SR)
 
+                #REVISAR SI EXISTE EL CENTRO DE COSTO   // jorge cuauro 04-2025 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                parametros = {
+                        'id_empresa':company_id,
+                        'Buk_ID_UNIDAD':Buk_ID_UNIDAD,
+                    }
+                consulta = """
+                    SELECT COUNT(*) AS CUENTA  
+                    FROM EO_UNIDAD eu
+                    WHERE eu.ID_EMPRESA = :id_empresa AND eu.ID = :Buk_ID_UNIDAD
+                """
+                #print(consulta)
+                cursor.execute(consulta, parametros)
+
+                count_EO_UNIDAD = cursor.fetchone()[0]
+                if count_EO_UNIDAD==0:
+                    #print('11')
+                    Actividad = 'El centro de costo='+str(Buk_ID_UNIDAD)+' para la empresa='+str(company_id)+' NO existe.'
+                    print(Actividad)
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    #####*********************************************  
+                    if isinstance((dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("area_ids")), str):
+                        Buk_ID_AREA=(dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("area_ids"))[:5]
+                    else:
+                        Buk_ID_AREA=dataEmpleado.get("data", {}).get("current_job", {}).get("role", {}).get("area_ids", [])
+                    #print('Buk_ID_AREA',Buk_ID_AREA)
+                    Buk_name_Area=''
+                    for area_id in Buk_ID_AREA:
+
+                        api_url = "https://alfonzorivas.buk.co/api/v1/colombia/organization/areas/"+str(area_id)
+                        headers = {'auth_token': os.getenv('AUTH_TOKEN')}
+                        responseArea = requests.get(api_url, headers=headers)
+                        if responseArea.status_code == 200:
+                            dataArea = responseArea.json()
+                            Buk_cost_center_Area=dataArea.get("data", []).get("cost_center")  #Nombre centro de costo
+                            if Buk_ID_UNIDAD==Buk_cost_center_Area: #deber el nombre donde el centro de costo sea elmismo de la api de empleados
+                                Buk_name_Area=dataArea.get("data", []).get("name")
+                            #print("Datos de la API obtenidos con éxito.",'dataArea',Buk_name_Area,Buk_cost_center_Area)
+                        else:
+                            print("Error al realizar la solicitud GET a la API. :", responseArea.status_code)
+
+                    if Buk_name_Area:
+                        # CREAR LA NUEVA EO_UNIDAD+++++++++++++++++++++++++++++++++++++++++++++++++
+                        values_eo_cargo = {   
+                            'Buk_ID_EMPRESA' :company_id,
+                            'Buk_name_Area' :Buk_name_Area,
+                            'Buk_ID_UNIDAD':Buk_ID_UNIDAD,
+                            'Buk_USRCRE' :Buk_USRCRE,
+                        }  
+                        sql_query = "INSERT INTO INFOCENT.EO_UNIDAD "+ \
+                        "(      ID_EMPRESA, ID,  NOMBRE,  USRCRE,  FECCRE, FECHA_INI) "+ \
+                        "VALUES(:Buk_ID_EMPRESA,  :Buk_ID_UNIDAD ,:Buk_name_Area, :Buk_USRCRE, SYSDATE, TO_DATE('01-01-1900', 'DD-MM-YYYY'))"
+                        cursor.execute(sql_query,values_eo_cargo)
+                        # L   O   G   ****************************************************************
+                        Actividad = "Se crea en EO_UNIDAD el Unidad Código="+str(Buk_ID_UNIDAD)+' Unidad='+Buk_name_Area +' Empresa='+str(company_id)
+                    
+                        Estatus = "INFO"
+                        fecha_actual = datetime.now()
+                        consulta = "INSERT INTO public.log "+ \
+                        "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                        "VALUES(%s, %s, %s, %s, %s, %s)"
+                        cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                        #####*********************************************
+                    #endif
+
+
                 if Buk_FICHA!=FICHA_RelacionLaboral:
                     print('Diferencia en FICHA. SPI;',FICHA_RelacionLaboral,' BUK:',Buk_FICHA)
                 if company_id!=ID_EMPRESA_RelacionLaboral:
                     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                     # L   O   G   ****************************************************************
-                    Actividad = 'Compañias diferentes. Se procesa una TRANSFERENCIA. SPI:'+str(company_id)+" BUK:"+str(ID_EMPRESA_RelacionLaboral)
+                    Actividad = 'Empresas diferentes. Se procesa una TRANSFERENCIA. BUK:'+str(company_id)+" SPI:"+str(ID_EMPRESA_RelacionLaboral)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -685,6 +789,54 @@ try:
                     "VALUES(%s, %s, %s, %s, %s, %s)"
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
+
+
+
+                    # SE PROCEDE A COLOCAR FECHA DE RETIRO Y MOTIVO CDE EN LA RELACIUON LABORAL ACTUAL 
+                    parametros = {
+                        'id_empresa':ID_EMPRESA_RelacionLaboral,
+                        'Buk_FICHA':FICHA_RelacionLaboral,
+                        'Buk_F_INGRESO':Buk_F_INGRESO,
+                        "id_finiquito": "CDE",
+                        'Buk_USRACT' :Buk_USRACT,
+                    }
+                    consulta = """
+                        UPDATE TA_RELACION_LABORAL SET F_RETIRO=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY,ID_FINIQUITO=:id_finiquito, USRACT=:Buk_USRACT, FECACT=SYSDATE
+                            WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND F_RETIRO IS NULL
+                        """ 
+                    cursor.execute(consulta, parametros)
+                        # L   O   G   ****************************************************************
+                    Actividad = "Se actualiza la fecha de retiro="+Buk_F_INGRESO+"-1, en la relación laboral actual. Empresa="+str(ID_EMPRESA_RelacionLaboral)+", Ficha="+str(FICHA_RelacionLaboral)
+                    print(Actividad)
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    #####*********************************************
+                    # SE DA FECHA DE EGRESO A LA RELACION PUESTO ANTERIOR
+                    parametros = {
+                        'id_empresa':ID_EMPRESA_RelacionLaboral,
+                        'Buk_FICHA':FICHA_RelacionLaboral,
+                        'Buk_F_INGRESO':Buk_F_INGRESO,
+                        'Buk_USRACT' :Buk_USRACT,
+                    }
+                    consulta = """
+                            UPDATE TA_RELACION_PUESTO SET FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY, USRACT=:Buk_USRACT,   FECACT=SYSDATE
+                            WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND FECHA_FIN IS NULL
+                    """
+                    cursor.execute(consulta, parametros)
+                    # L   O   G   ****************************************************************
+                    Actividad = "Se da de BAJA TA_RELACION_PUESTO para la emoresa: "+ID_EMPRESA_RelacionLaboral+", la ficha="+FICHA_RelacionLaboral+" con FECHA_FIN="+Buk_F_INGRESO+"-1 "
+                    Estatus = "INFO"
+                    fecha_actual = datetime.now()
+                    consulta = "INSERT INTO public.log "+ \
+                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    "VALUES(%s, %s, %s, %s, %s, %s)"
+                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+
+
 
                     #BUSCAR INFORMACION EN TA_RELACION_LABORAL PARA VALIDAR SI EXISTIO RELACIONA ANTERIOR CON ESA COMPAÑIA (SI ES ASI ENTONCES SE CREAR NUEVA FICHA) 
                     parametros = {
@@ -715,7 +867,7 @@ try:
                     else:
                         #print('22')
                         # L   O   G   ****************************************************************
-                        Actividad = 'El colaborador ya ha trabajado en esta nueva compañia('+str(company_id)+'). Se va generar una nueva ficha.'
+                        Actividad = 'El colaborador ya ha trabajado en esta nueva Empresa('+str(company_id)+'). Se va generar una nueva ficha.'
                         print(Actividad)
                         Estatus = "INFO"
                         fecha_actual = datetime.now()
@@ -774,7 +926,7 @@ try:
                         "VALUES(:Buk_ID_EMPRESA,  :Buk_ID_CARGO ,:Buk_ID_CARGO_NOMBRE, :Buk_USRCRE, SYSDATE)"
                         cursor.execute(sql_query,values_eo_cargo)
                         # L   O   G   ****************************************************************
-                        Actividad = "Se crea en EO_CARGO el cargo Código="+str(Buk_ID_CARGO)+' Cargo='+Buk_ID_CARGO_NOMBRE +' Compañia='+str(company_id)
+                        Actividad = "Se crea en EO_CARGO el cargo Código="+str(Buk_ID_CARGO)+' Cargo='+Buk_ID_CARGO_NOMBRE +' Empresa='+str(company_id)
                     
                         Estatus = "INFO"
                         fecha_actual = datetime.now()
@@ -819,7 +971,7 @@ try:
                     cursor.execute(sql_query,values_eo_puesto)
                     #print('2')
                     # L   O   G   ****************************************************************
-                    Actividad = "Se crea un NUEVO EO_PUESTO. Puesto_ID="+str(Buk_ID_PUESTO)+", Puesto="+Buk_ID_CARGO_NOMBRE_SR+'en compañia='+str(company_id)+", unidad="+Buk_ID_UNIDAD+" "
+                    Actividad = "Se crea un NUEVO EO_PUESTO. Puesto_ID="+str(Buk_ID_PUESTO)+", Puesto="+Buk_ID_CARGO_NOMBRE_SR+' en Empresa='+str(company_id)+", unidad="+Buk_ID_UNIDAD+" "
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
                     consulta = "INSERT INTO public.log "+ \
@@ -830,7 +982,7 @@ try:
                     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                 else:
                     # L   O   G   ****************************************************************
-                    Actividad = 'Compañias iguales. Se procesa una PROMOCIÓN. SPI:'+str(company_id)+" BUK:"+str(ID_EMPRESA_RelacionLaboral)
+                    Actividad = 'Empresas iguales. Se procesa una PROMOCIÓN. BUK:'+str(company_id)+" SPI:"+str(ID_EMPRESA_RelacionLaboral)
                     print(Actividad)
                     Estatus = "INFO"
                     fecha_actual = datetime.now()
@@ -847,9 +999,10 @@ try:
                          'id_empresa':company_id,
                          'Buk_FICHA':Buk_FICHA,
                          'LOCALIDAD':Buk_LOCALIDAD,
+                         'Buk_USRACT' :Buk_USRACT,
                         }
                         consulta = """
-                            UPDATE TA_RELACION_LABORAL SET ID_LOCALIDAD=:LOCALIDAD
+                            UPDATE TA_RELACION_LABORAL SET ID_LOCALIDAD=:LOCALIDAD, USRACT=:Buk_USRACT, FECACT=SYSDATE
                              WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND F_RETIRO IS NULL
                          """
                         cursor.execute(consulta, parametros)
@@ -885,9 +1038,10 @@ try:
                             'id_empresa':company_id,
                             'Buk_FICHA':Buk_FICHA,
                             'JEFE':Buk_FICHA_JEFE,
+                            'Buk_USRACT' :Buk_USRACT,
                             }
                             consulta = """
-                                UPDATE TA_RELACION_LABORAL SET FICHA_JEFE=:JEFE
+                                UPDATE TA_RELACION_LABORAL SET FICHA_JEFE=:JEFE, USRACT=:Buk_USRACT, FECACT=SYSDATE
                                 WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND F_RETIRO IS NULL
                             """
                             cursor.execute(consulta, parametros)
@@ -938,9 +1092,10 @@ try:
                                 'id_empresa':company_id,
                                 'Buk_FICHA':Buk_FICHA,
                                 'Buk_F_INGRESO':Buk_F_INGRESO,
+                                'Buk_USRACT' :Buk_USRACT,
                             }
                             consulta = """
-                                    UPDATE TA_HIST_CONTRATO_TRABAJO SET FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY
+                                    UPDATE TA_HIST_CONTRATO_TRABAJO SET FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY, USRACT=:Buk_USRACT, FECACT=SYSDATE
                                     WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND FECHA_FIN IS NULL
                             """
                             cursor.execute(consulta, parametros)
@@ -1078,7 +1233,7 @@ try:
                             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                             #####*********************************************
 
-                        # CARGAMOS LA INFORMACION DEL PUESTO ACTUAL PARA COMPRAR UN POSIBLE CAMBIO DE SENIORITY
+                        # CARGAMOS LA INFORMACION DEL PUESTO ACTUAL PARA COMPARAR UN POSIBLE CAMBIO DE SENIORITY
                         parametros = {
                             'id_empresa':company_id,
                             'Buk_ID_CARGO':Buk_ID_CARGO,
@@ -1175,14 +1330,15 @@ try:
                             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                             #####*********************************************
                         
-                            # SE DA FECHA DE EGRESO A LA RELACIUON PUESTO ANTERIOR
+                            # SE DA FECHA DE EGRESO A LA RELACION PUESTO ANTERIOR
                             parametros = {
                                 'id_empresa':company_id,
                                 'Buk_FICHA':Buk_FICHA,
                                 'Buk_F_INGRESO':Buk_F_INGRESO,
+                                'Buk_USRACT' :Buk_USRACT,
                             }
                             consulta = """
-                                    UPDATE TA_RELACION_PUESTO SET FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY
+                                    UPDATE TA_RELACION_PUESTO SET FECHA_FIN=TO_DATE(:Buk_F_INGRESO, 'YYYY-MM-DD')- INTERVAL '1' DAY, USRACT=:Buk_USRACT, FECACT=SYSDATE
                                     WHERE ID_EMPRESA = :id_empresa AND FICHA = :Buk_FICHA AND FECHA_FIN IS NULL
                             """
                             cursor.execute(consulta, parametros)
@@ -1257,7 +1413,7 @@ try:
 
     Atentamente,
 
-    Sistema Automático de gestión de Promociones y Re-clasificación .
+    Sistema Automático de gestión de Transferencias, Promociones y Re-clasificación.
     """
             msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
                 # Envía el correo electrónico

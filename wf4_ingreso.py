@@ -97,6 +97,7 @@ try:
                 #print(Buk_FICHA)
                 # L   O   G   ****************************************************************
                 Actividad = "El colaborador NO EXISTE"
+                print('Actividad',Actividad)
                 Estatus = "INFO"
                 fecha_actual = datetime.now()
                 consulta = "INSERT INTO public.log "+ \
@@ -120,6 +121,7 @@ try:
                 #print(Buk_FICHA)
                 # L   O   G   ****************************************************************
                 Actividad = "El colaborador EXISTE"
+                print('Actividad',Actividad)
                 Estatus = "INFO"
                 fecha_actual = datetime.now()
                 consulta = "INSERT INTO public.log "+ \
@@ -161,6 +163,7 @@ try:
             """
             #print(consulta)
             cursor.execute(consulta, parametros)
+            print('consulta',consulta,Buk_ESTADO)
             Buk_ID_ENTFE_NA = cursor.fetchone()[0]
             #print('Buk_ESTADO:',Buk_ESTADO,'Buk_ID_ENTFE_NA:',Buk_ID_ENTFE_NA)
 
@@ -632,7 +635,7 @@ try:
         connectionPg.commit()
         #connectionPg.rollback()
         print("Transacción finalizada")
-    except cx_Oracle.DatabaseError as e:
+    except oracledb.DatabaseError as e:
         # Manejar excepciones relacionadas con la base de datos
         print("Error de base de datos:", e)
         # Realizar rollback en caso de error

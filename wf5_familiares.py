@@ -56,7 +56,7 @@ try:
         documento='31.661.242' # para pruebas
         sql_query = f"SELECT * FROM family_buk where document_number= '{documento}'"
 
-        sql_query = f"select * from public.family_buk  where replace(document_number,'.','') in ('30664054')"
+        sql_query = f"select * from public.family_buk  where replace(document_number,'.','') in ('25507307','27895009','20356477','23802851','27167483','19467257','21328182','26140232')"
 
         cursorApiFamily.execute(sql_query)
         results = cursorApiFamily.fetchall()

@@ -42,7 +42,7 @@ try:
 
     connectionPg.autocommit = True ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
 
-    sql_query = "SELECT * FROM empleados where name is null order by 7 desc" # AND event_type  ='employee_create'"
+    sql_query = "SELECT * FROM empleados where name is null and status_process is null order by 7 desc" # AND event_type  ='employee_create'"
     #sql_query = "SELECT * FROM empleados where id=16749"
     cursorApiEmpleado.execute(sql_query)
     results = cursorApiEmpleado.fetchall()

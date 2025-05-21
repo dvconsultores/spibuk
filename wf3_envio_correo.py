@@ -3,7 +3,7 @@ Empresa:DvConsultores
 Por:    Jorge Luis Cuauro Gonzalez
 Fecha:  Febrero 2025
 Descripción:
- Este programa gestiona el envio de correo para notificar la ficha reservada y posterioemente habiitar el INGRESO del colaborador.
+ Este programa gestiona el envio de correo para notificar la ficha reservada y posteriormente habiitar el INGRESO del colaborador.
  
  Esto se realiza mediante la informacion de la tala workflow_alta de PostgreSQL.
 
@@ -23,6 +23,7 @@ Segundo momento:
 import psycopg2
 from datetime import datetime
 
+#manejo de correos
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib

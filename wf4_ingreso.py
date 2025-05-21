@@ -17,6 +17,10 @@ import requests
 import psycopg2
 from datetime import datetime
 
+#manejo de correos
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
 
 from dotenv import load_dotenv
 # Carga las variables de entorno desde el archivo .env
@@ -35,9 +39,19 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
+email_user = os.getenv("EMAIL_USER")
+email_pass = os.getenv("EMAIL_PASS")
 
 dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 try:
+    #  Configura la conexión al servidor SMTP
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
+    server.login(email_user, email_pass)
+    print("Conexión exitosa a smtp")
+
+
     ##*************************************** ORACLE SPI
     connection = cx_Oracle.connect(oracle_user, oracle_pass, dsn)
     print("Conexión exitosa a Oracle SPI")
@@ -58,7 +72,7 @@ try:
         connection.begin()
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
         #sql_query = "SELECT * FROM empleados where event_type  ='employee_create' and status_process is null"
-        sql_query = "select * from public.workflow_alta where status_ingreso is not null and status_process is null"
+        sql_query = "select * from public.workflow_alta where status_ingreso is not null and status_process is null order by id"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()
         employee_id=''
@@ -604,6 +618,30 @@ try:
             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
             #*****************************************************************************
             """
+
+            msg = MIMEMultipart()
+            msg['Subject'] = 'Notificación de registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
+            msg['From'] = 'jcuauro@gmail.com'
+            msg['To'] = 'jhidalgo@alfonzorivas.com'
+            # Crea el cuerpo del mensaje
+            cuerpo_mensaje = f"""Estimado/a ,
+
+Le informamos que se ha procesado el ingreso del número de ficha {Buk_FICHA} para {Buk_NOMBRE1} {Buk_APELLIDO1}, nro de Documento: {Buk_NUM_IDEN}
+
+
+Atentamente,
+
+Sistema Automático de gestión de ingresos.
+            """
+            msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
+                # Envía el correo electrónico
+            server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
+
+
+
+
+
+
             Estatus = "1"
             fecha_actual = datetime.now()
             consulta = "UPDATE public.workflow_alta set status_process=%s,date_process=%s where id=%s "
@@ -646,5 +684,6 @@ try:
     cursorApiEmpleado.close()
     connectionPg.close()
     connection.close()
+    server.quit()
 except psycopg2.Error as e:
     print(f"Error al conectar a PostgreSQL: {e}")

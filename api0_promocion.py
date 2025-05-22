@@ -1126,6 +1126,7 @@ try:
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))                      
                     if crear_contrato:
                         # PREPARANDO DATA TA_HIST_CONTRATO_TRABAJO
+                        print('Buk_FECHA_INI',results_TA_HIST_CONTRATO_TRABAJO[6])
                         values_TA_HIST_CONTRATO_TRABAJO = {   
                             'Buk_ID_EMPRESA' :company_id,
                             'Buk_ID_CONT_TRAB' : Buk_ID_CONT_TRAB,

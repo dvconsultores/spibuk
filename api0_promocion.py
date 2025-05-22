@@ -1125,8 +1125,9 @@ try:
                         "VALUES(%s, %s, %s, %s, %s, %s)"
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))                      
                     if crear_contrato:
+                        Buk_FECHA_INI_new=results_TA_HIST_CONTRATO_TRABAJO[6]
                         # PREPARANDO DATA TA_HIST_CONTRATO_TRABAJO
-                        print('Buk_FECHA_INI',results_TA_HIST_CONTRATO_TRABAJO[6])
+                        print('Buk_FECHA_INI',Buk_FECHA_INI_new)
                         values_TA_HIST_CONTRATO_TRABAJO = {   
                             'Buk_ID_EMPRESA' :company_id,
                             'Buk_ID_CONT_TRAB' : Buk_ID_CONT_TRAB,
@@ -1135,7 +1136,7 @@ try:
                             'Buk_ID_PERSONA' : Buk_ID,
                             'Buk_NUM_CONTRATO' : '1',
                             #'Buk_FECHA_INI' :Buk_F_INGRESO,
-                            'Buk_FECHA_INI' :results_TA_HIST_CONTRATO_TRABAJO[6], # se cambia la logica por indicaciones de jeisa correo promocion del 21-mar-2025
+                            'Buk_FECHA_INI' : Buk_FECHA_INI_new, # se cambia la logica por indicaciones de jeisa correo promocion del 21-mar-2025
                             'Buk_ID_CAMBIO' : '10011',
                             'Buk_USRCRE' :Buk_USRCRE,
                         }    

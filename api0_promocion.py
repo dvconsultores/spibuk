@@ -1125,7 +1125,7 @@ try:
                         "VALUES(%s, %s, %s, %s, %s, %s)"
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))                      
                     if crear_contrato:
-                        Buk_FECHA_INI_new=results_TA_HIST_CONTRATO_TRABAJO[6]
+                        Buk_FECHA_INI_new= results_TA_HIST_CONTRATO_TRABAJO[6]
                         # PREPARANDO DATA TA_HIST_CONTRATO_TRABAJO
                         print('Buk_FECHA_INI',Buk_FECHA_INI_new)
                         values_TA_HIST_CONTRATO_TRABAJO = {   

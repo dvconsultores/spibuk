@@ -37,8 +37,6 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
-print('postgre_service',postgre_pass)
-
 email_user = os.getenv("EMAIL_USER")
 email_pass = os.getenv("EMAIL_PASS")
 
@@ -1125,7 +1123,8 @@ try:
                         "VALUES(%s, %s, %s, %s, %s, %s)"
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))                      
                     if crear_contrato:
-                        Buk_FECHA_INI_new= results_TA_HIST_CONTRATO_TRABAJO[6]
+                        Buk_FECHA_INI_new= results_TA_HIST_CONTRATO_TRABAJO[6] if results_TA_HIST_CONTRATO_TRABAJO else Buk_F_INGRESO
+                        
                         # PREPARANDO DATA TA_HIST_CONTRATO_TRABAJO
                         print('Buk_FECHA_INI',Buk_FECHA_INI_new)
                         values_TA_HIST_CONTRATO_TRABAJO = {   

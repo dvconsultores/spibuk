@@ -36,7 +36,7 @@ fecha_ini = datetime.now()
 errores = []
 
 for programa in programas:
-    # Construir la ruta completa al archivo
+    # Construir la ruta completa al archivo 
     ruta_completa = os.path.join(directorio_actual, programa)
 
     print(f"Ejecutando {ruta_completa}...")

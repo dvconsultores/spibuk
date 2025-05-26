@@ -982,16 +982,22 @@ try:
                     #####*********************************************              
                     #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                 else:
+
+                    # se coloca en comantario en vista que si el evento no es trasferencia ni promosion porque es solo camios en el eo_persona entonces estaba 
+                    # enviando en mensaje 
                     # L   O   G   ****************************************************************
-                    Actividad = 'Empresas iguales. Se procesa una PROMOCIÓN. BUK:'+str(company_id)+" SPI:"+str(ID_EMPRESA_RelacionLaboral)
-                    print(Actividad)
-                    Estatus = "INFO"
-                    fecha_actual = datetime.now()
-                    consulta = "INSERT INTO public.log "+ \
-                    "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
-                    "VALUES(%s, %s, %s, %s, %s, %s)"
-                    cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                    ##Actividad = 'Empresas iguales. Se procesa una PROMOCIÓN. BUK:'+str(company_id)+" SPI:"+str(ID_EMPRESA_RelacionLaboral)
+                    ##print(Actividad)
+                    ##Estatus = "INFO"
+                    ##fecha_actual = datetime.now()
+                    ##consulta = "INSERT INTO public.log "+ \
+                    ##"(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                    ##"VALUES(%s, %s, %s, %s, %s, %s)"
+                    ##cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                     #####*********************************************
+                    
+                    # fin de comntario
+
                     #print('Igual compañia BUK y SPI. Se procede a evaluar promoción.')
                     #print('LOCAIDADES:',ID_LOCALIDAD_RelacionLaboral,Buk_LOCALIDAD)
                     if ID_LOCALIDAD_RelacionLaboral != Buk_LOCALIDAD:
@@ -1155,25 +1161,6 @@ try:
                         "VALUES(%s, %s, %s, %s, %s, %s)"
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                         #####*********************************************
-
-                    ##VARIABLES A UTILIZAR EN AS DIFERENTES VALIDACIONES
-                    #id_cambio=''
-                    ##Buk_F_INGRESO=(dataEmpleado.get("data", []).get("current_job", {}).get("start_date"))
-                    #Buk_ID_UNIDAD=dataEmpleado.get("data", []).get("current_job", {}).get("cost_center")  #LA UNIDAD ES EL CENTRO DE COSTOS
-                    #if isinstance((dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("custom_attributes", {}).get("codigo_cargo")), str):
-                    #    Buk_ID_CARGO=(dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("custom_attributes", {}).get("codigo_cargo"))[:5]
-                    #else:
-                    #    Buk_ID_CARGO=int(dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("custom_attributes", {}).get("codigo_cargo"))
-                    #    Buk_ID_CARGO=str(Buk_ID_CARGO)
-                    #Buk_ID_CARGO_NOMBRE=(dataEmpleado.get("data", []).get("current_job", {}).get("role", {}).get("custom_attributes", {}).get("cargo_abreviado")).upper()
-                    #Buk_Nivel_de_Seniority=(dataEmpleado.get("data", []).get("current_job", {}).get("custom_attributes", {}).get("Nivel_de_Seniority")).upper()
-                    #Buk_ID_CARGO_NOMBRE_SR= Buk_ID_CARGO_NOMBRE+" "+Buk_Nivel_de_Seniority
-                    #print('Buk_ID_UNIDAD',Buk_ID_UNIDAD)
-                    #print('Buk_ID_CARGO',Buk_ID_CARGO)
-                    #print('Buk_ID_CARGO_NOMBRE',Buk_ID_CARGO_NOMBRE)
-                    #print('Buk_Nivel_de_Seniority',Buk_Nivel_de_Seniority)
-                    #print('Buk_ID_CARGO_NOMBRE_SR',Buk_ID_CARGO_NOMBRE_SR)
-
                     # EVALUAR SI TIENE RELACION PUESTO
                     parametros = {
                          'id_empresa':company_id,

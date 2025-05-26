@@ -65,7 +65,7 @@ try:
     try:
         # Iniciar la transacción
         ##########connectionPg.autocommit = False ####esto se coloca para probar. Pero es recomendable este en automatico para que registre el LOG
-        sql_query = "select * from public.workflow_api_email  where status ='En progreso' and document_number is not null"
+        sql_query = "select * from public.workflow_api_email  where status in ('En progreso','Aprobado') and document_number is not null"
         #sql_query = "select * from public.workflow_api_email where id in (1304)"
         cursorApiEmpleado.execute(sql_query)
         results = cursorApiEmpleado.fetchall()

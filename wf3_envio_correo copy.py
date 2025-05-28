@@ -171,47 +171,11 @@ Sistema Automático de gestión de ingresos.
                         cursorApiEmpleado.execute(sql_query)
                         count_result = cursorApiEmpleado.fetchone()
                         #print(count_result)
-                        if count_result is None:
-                            print(f"No se encontró empleado con documento: {var_document_number}")
-                            #continue
-                            msg = MIMEMultipart()
-                            msg['Subject'] = 'Inconsistencia al preparar ingreso. Documento: ' + var_document_number + '. Colaborador: ' + var_first_name + ', ' + var_last_name
-                            msg['From'] = 'jcuauro@gmail.com'
-                            msg['To'] = 'jhidalgo@alfonzorivas.com'
-                            # Crea el cuerpo del mensaje
-                            cuerpo_mensaje = f"""Estimado/a ,
-
-Le informamos que en un proceso anterior, se notificó que fue asignado el número de ficha {Buk_FICHA} para {var_first_name} {var_last_name}, nro de Documento: {var_document_number} ,
-Pero se encontró inconsistencia al preparar el ingreso, ya que no se encontró este colaborador en la tabla empleados_buk. 
-El documento {var_document_number} no existe en el maestro de colaboradores de BUK.
-El ingreso no se realizará hasta que se resuelva esta inconsistencia.
-
-**Detalles del workflow:**
-
-Id del workflow:    {transacction_id}
-
-
-
-Atentamente,
-
-Sistema Automático de gestión de ingresos.
-                """
-                            msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
-                            # Envía el correo electrónico
-                            server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
-                            Estatus = "2" # Error al procesar el ingreso
-                            fecha_actual = datetime.now()
-                            consulta = "UPDATE public.workflow_alta set status_process=%s,date_process=%s where id=%s "
-                            cursorApiEmpleado.execute(consulta, (Estatus, fecha_actual,transacction_id))
-                            #para corregir el error de que no se encuentra el empleado en la tabla empleados_buk
-                            #se debe actualizar el status de workflow_api_email en nulo y antes coregir el numero de cedula
-                            #sql_query = "update public.workflow_api_email set status=null WHERE id::integer = %s"
-                        else:
-                            var_employee_id=count_result[1]
-                            var_name=count_result[5]
-                            fecha_actual = datetime.now()
-                            sql_query = "update public.workflow_alta set employee_id=%s,name=%s,status_ingreso=%s WHERE id::integer = %s"
-                            cursorApiEmpleado.execute(sql_query,(var_employee_id,var_name,fecha_actual,transacction_id))
+                        var_employee_id=count_result[1]
+                        var_name=count_result[5]
+                        fecha_actual = datetime.now()
+                        sql_query = "update public.workflow_alta set employee_id=%s,name=%s,status_ingreso=%s WHERE id::integer = %s"
+                        cursorApiEmpleado.execute(sql_query,(var_employee_id,var_name,fecha_actual,transacction_id))
 
         #ENDFOR
         # Confirmar la transacción si no hubo errores

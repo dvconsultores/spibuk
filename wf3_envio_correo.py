@@ -18,6 +18,10 @@ Segundo momento:
  
     update public.workflow_alta set employee_id=%s,name=%s,status_ingreso=%s WHERE id::integer = %s
 
+Caso de inconsistencia:
+    Si no se encuentra el colaborador (cédula) en la tabla empleados_buk, se envia un correo notificando la inconsistencia y se actualiza el status del workflow_alta en 2 para indivar que hay un error .
+
+
 """
 
 import psycopg2
@@ -153,9 +157,10 @@ Sistema Automático de gestión de ingresos.
                 cursorApiEmpleado.execute(sql_query)
 
             else:
-                sql_query = 'SELECT status_ingreso FROM public.workflow_alta WHERE id::integer = '+str(transacction_id)
+                sql_query = 'SELECT status_ingreso,ficha FROM public.workflow_alta WHERE id::integer = '+str(transacction_id)
                 cursorApiEmpleado.execute(sql_query)
                 validaficha_workflow_alta= cursorApiEmpleado.fetchone()[0]
+                Buk_FICHA=validaficha_workflow_alta[1]
                 if validaficha_workflow_alta is None: # valida que no se procesara aneriormente
                     sql_query = 'SELECT COUNT(*) FROM public.workflow_api_ficha WHERE id::integer = '+str(transacction_id)
                     cursorApiEmpleado.execute(sql_query)

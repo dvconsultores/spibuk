@@ -223,7 +223,6 @@ try:
                     "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
                     "VALUES(%s, %s, %s, %s, %s, %s)"
                     cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
-                    Buk_LOCALIDAD='999' # SIN LOCALIDAD
                     #####*********************************************                    
                     Buk_LOCALIDAD=results[0]
             else:
@@ -1034,9 +1033,22 @@ try:
                     """
                     cursor.execute(consulta, parametros)
                     results_boss = cursor.fetchone()
-                    Buk_ID_EMPRESA_BOSS=results_boss[0]
-                    Buk_FICHA_JEFE=results_boss[1]
-                    #print('FICHA_JEFE:',FICHA_JEFE_RelacionLaboral,Buk_FICHA_JEFE)
+
+                    if results_boss is  None or results_boss[0] is  None:
+                    # L   O   G   ****************************************************************
+                        Actividad = "No se logra ubicar al COACH , se procede a ASIGNAR en la Buk_FICHA_JEFE=Buk_FICHA_COLABORADOR ."
+                        Estatus = "ERROR"
+                        fecha_actual = datetime.now()
+                        consulta = "INSERT INTO public.log "+ \
+                        "(id_buk, fecha_proceso, id_spi, ficha_spi, actividad, status) "+ \
+                        "VALUES(%s, %s, %s, %s, %s, %s)"
+                        cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
+                        Buk_FICHA_JEFE=Buk_FICHA 
+                    else:
+                        Buk_ID_EMPRESA_BOSS=results_boss[0]
+                        Buk_FICHA_JEFE=results_boss[1]
+                        #print('FICHA_JEFE:',FICHA_JEFE_RelacionLaboral,Buk_FICHA_JEFE)
+
                     if FICHA_JEFE_RelacionLaboral!=Buk_FICHA_JEFE:
                         if company_id==Buk_ID_EMPRESA_BOSS:
                             # SE ENCONTRO FICHA SE JEFE DIFEERENTE Y SE CAMBIA EN SPI SOLO SI LAS EMPRESAS DEL EMPLEADO Y JEFE SON LAS MISMAS
@@ -1072,7 +1084,8 @@ try:
                             "VALUES(%s, %s, %s, %s, %s, %s)"
                             cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                             #####*********************************************    
-                            Buk_FICHA_JEFE=' '         
+                            #Buk_FICHA_JEFE=' '   # se cambia la logica si los valores no son validos se le asigna la ficha de jefe la misma ficha del colaborador     
+                            Buk_FICHA_JEFE=Buk_FICHA # se cambia la logica si los valores no son validos se le asigna la ficha de jefe la misma ficha del colaborador   
                         #print('boss',Buk_ID_EMPRESA_BOSS,Buk_FICHA_JEFE)
                         #print('ojo',company_id,Buk_FICHA)
                     #endif 

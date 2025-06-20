@@ -91,74 +91,77 @@ try:
             selected_data_email = []
             selected_data_ficha = []
             for item in data:
-                for operation in item["operations"]:
-                    if operation["title"] == "ETAPA 1. GESTIÓN de ingreso":
-                        # Si la operación está completada, agregar el elemento a la lista selected_data
-                        selected_data_email.append({
-                            "id": item["id"],
-                            "title": item["title"],
-                            "kind": item["kind"],
-                            "document_number": item["employee"]["document_number"],
-                            "rut": item["employee"]["rut"],
-                            "first_name": item["employee"]["first_name"],
-                            "last_name": item["employee"]["last_name"],
-                            "segundo_apellido": item["employee"]["segundo_apellido"],
-                            "start_date": item["employee"]["start_date"],
-                            "operations": operation["title"],  
-                            "completed_at": operation["completed_at"],
-                            "completed_by_document_number": operation["completed_by"]["document_number"],
-                            "completed_by_document_type": operation["completed_by"]["document_type"],
-                            "completed_by_rut": operation["completed_by"]["rut"],
-                            "completed_by_first_name": operation["completed_by"]["first_name"],
-                            "completed_by_last_name": operation["completed_by"]["last_name"],
-                            "completed_by_segundo_apellido": operation["completed_by"]["segundo_apellido"],
-                            "completed_by_email": operation["completed_by"]["email"],
-                            "status": item["status"],
-                            "created_at": item["created_at"],
-                            "created_by_document_number": item["created_by"]["document_number"],
-                            "created_by_document_type": item["created_by"]["document_type"],
-                            "created_by_rut": item["created_by"]["rut"],
-                            "created_by_first_name": item["created_by"]["first_name"],
-                            "created_by_last_name": item["created_by"]["last_name"],
-                            "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
-                            "created_by_email": item["created_by"]["email"],
-                        })
-                        #print('IF',item["title"])
-                        #print('operations',operation["title"])
-                    if operation["title"] == "Notificación: Totalmente aprobado. Nómina.":
-                        # Si la operación está completada, agregar el elemento a la lista selected_data
-                        selected_data_ficha.append({
-                            "id": item["id"],
-                            "title": item["title"],
-                            "kind": item["kind"],
-                            "document_number": item["employee"]["document_number"],
-                            "rut": item["employee"]["rut"],
-                            "first_name": item["employee"]["first_name"],
-                            "last_name": item["employee"]["last_name"],
-                            "segundo_apellido": item["employee"]["segundo_apellido"],
-                            "start_date": item["employee"]["start_date"],
-                            "operations": operation["title"],  
-                            "completed_at": operation["completed_at"],
-                            "completed_by_document_number": operation["completed_by"]["document_number"],
-                            "completed_by_document_type": operation["completed_by"]["document_type"],
-                            "completed_by_rut": operation["completed_by"]["rut"],
-                            "completed_by_first_name": operation["completed_by"]["first_name"],
-                            "completed_by_last_name": operation["completed_by"]["last_name"],
-                            "completed_by_segundo_apellido": operation["completed_by"]["segundo_apellido"],
-                            "completed_by_email": operation["completed_by"]["email"],
-                            "status": item["status"],
-                            "created_at": item["created_at"],
-                            "created_by_document_number": item["created_by"]["document_number"],
-                            "created_by_document_type": item["created_by"]["document_type"],
-                            "created_by_rut": item["created_by"]["rut"],
-                            "created_by_first_name": item["created_by"]["first_name"],
-                            "created_by_last_name": item["created_by"]["last_name"],
-                            "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
-                            "created_by_email": item["created_by"]["email"],
-                        })
-                    #print('procesando')
-                    #endif
-                #endfor
+                # validar que el status no sea "Aprobado", si esta Aprobado no se carga el registro
+                # ese workflow de ALTA ya fue procesado antes por el proceso natural de Ingreso de AR
+                if item["status"] != "Aprobado":
+                    for operation in item["operations"]:
+                        if operation["title"] == "ETAPA 1. GESTIÓN de ingreso":
+                            # Si la operación está completada, agregar el elemento a la lista selected_data
+                            selected_data_email.append({
+                                "id": item["id"],
+                                "title": item["title"],
+                                "kind": item["kind"],
+                                "document_number": item["employee"]["document_number"],
+                                "rut": item["employee"]["rut"],
+                                "first_name": item["employee"]["first_name"],
+                                "last_name": item["employee"]["last_name"],
+                                "segundo_apellido": item["employee"]["segundo_apellido"],
+                                "start_date": item["employee"]["start_date"],
+                                "operations": operation["title"],  
+                                "completed_at": operation["completed_at"],
+                                "completed_by_document_number": operation["completed_by"]["document_number"],
+                                "completed_by_document_type": operation["completed_by"]["document_type"],
+                                "completed_by_rut": operation["completed_by"]["rut"],
+                                "completed_by_first_name": operation["completed_by"]["first_name"],
+                                "completed_by_last_name": operation["completed_by"]["last_name"],
+                                "completed_by_segundo_apellido": operation["completed_by"]["segundo_apellido"],
+                                "completed_by_email": operation["completed_by"]["email"],
+                                "status": item["status"],
+                                "created_at": item["created_at"],
+                                "created_by_document_number": item["created_by"]["document_number"],
+                                "created_by_document_type": item["created_by"]["document_type"],
+                                "created_by_rut": item["created_by"]["rut"],
+                                "created_by_first_name": item["created_by"]["first_name"],
+                                "created_by_last_name": item["created_by"]["last_name"],
+                                "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
+                                "created_by_email": item["created_by"]["email"],
+                            })
+                            #print('IF',item["title"])
+                            #print('operations',operation["title"])
+                        if operation["title"] == "Notificación: Totalmente aprobado. Nómina.":
+                            # Si la operación está completada, agregar el elemento a la lista selected_data
+                            selected_data_ficha.append({
+                                "id": item["id"],
+                                "title": item["title"],
+                                "kind": item["kind"],
+                                "document_number": item["employee"]["document_number"],
+                                "rut": item["employee"]["rut"],
+                                "first_name": item["employee"]["first_name"],
+                                "last_name": item["employee"]["last_name"],
+                                "segundo_apellido": item["employee"]["segundo_apellido"],
+                                "start_date": item["employee"]["start_date"],
+                                "operations": operation["title"],  
+                                "completed_at": operation["completed_at"],
+                                "completed_by_document_number": operation["completed_by"]["document_number"],
+                                "completed_by_document_type": operation["completed_by"]["document_type"],
+                                "completed_by_rut": operation["completed_by"]["rut"],
+                                "completed_by_first_name": operation["completed_by"]["first_name"],
+                                "completed_by_last_name": operation["completed_by"]["last_name"],
+                                "completed_by_segundo_apellido": operation["completed_by"]["segundo_apellido"],
+                                "completed_by_email": operation["completed_by"]["email"],
+                                "status": item["status"],
+                                "created_at": item["created_at"],
+                                "created_by_document_number": item["created_by"]["document_number"],
+                                "created_by_document_type": item["created_by"]["document_type"],
+                                "created_by_rut": item["created_by"]["rut"],
+                                "created_by_first_name": item["created_by"]["first_name"],
+                                "created_by_last_name": item["created_by"]["last_name"],
+                                "created_by_segundo_apellido": item["created_by"]["segundo_apellido"],
+                                "created_by_email": item["created_by"]["email"],
+                            })
+                        #print('procesando')
+                        #endif
+                    #endfor
                 #print('sale de for operation in item["operations"]:')
             #endfor
             #print('sale de for item in data:')

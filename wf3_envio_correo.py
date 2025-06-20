@@ -159,8 +159,9 @@ Sistema Automático de gestión de ingresos.
             else:
                 sql_query = 'SELECT status_ingreso,ficha FROM public.workflow_alta WHERE id::integer = '+str(transacction_id)
                 cursorApiEmpleado.execute(sql_query)
-                validaficha_workflow_alta= cursorApiEmpleado.fetchone()[0]
-                Buk_FICHA=validaficha_workflow_alta[1]
+                resultado_workflow_alta = cursorApiEmpleado.fetchone()
+                validaficha_workflow_alta= resultado_workflow_alta[0]
+                Buk_FICHA=resultado_workflow_alta[1]
                 if validaficha_workflow_alta is None: # valida que no se procesara aneriormente
                     sql_query = 'SELECT COUNT(*) FROM public.workflow_api_ficha WHERE id::integer = '+str(transacction_id)
                     cursorApiEmpleado.execute(sql_query)
@@ -205,9 +206,8 @@ Sistema Automático de gestión de ingresos.
                             # Envía el correo electrónico
                             server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
                             Estatus = "2" # Error al procesar el ingreso
-                            fecha_actual = datetime.now()
-                            consulta = "UPDATE public.workflow_alta set status_process=%s,date_process=%s where id=%s "
-                            cursorApiEmpleado.execute(consulta, (Estatus, fecha_actual,transacction_id))
+                            consulta = "UPDATE public.workflow_alta set status_process=%s WHERE id::integer = %s"
+                            cursorApiEmpleado.execute(consulta, (Estatus,transacction_id))
                             #para corregir el error de que no se encuentra el empleado en la tabla empleados_buk
                             #se debe actualizar el status de workflow_api_email en nulo y antes coregir el numero de cedula
                             #sql_query = "update public.workflow_api_email set status=null WHERE id::integer = %s"

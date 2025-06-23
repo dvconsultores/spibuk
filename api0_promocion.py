@@ -7,7 +7,7 @@ Descripción:
  a partir de lA tabla empleados de PostgreSQL.
 
 """
-
+import unicodedata
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -44,7 +44,15 @@ email_pass = os.getenv("EMAIL_PASS")
 
 dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)
 
-
+def quitar_acentos(cadena):
+    # Normalizar la cadena a la forma NFD (descomposición)
+    cadena_normalizada = unicodedata.normalize('NFD', cadena)
+    # Filtrar solo los caracteres ASCII
+    cadena_sin_acentos = ''.join(
+        char for char in cadena_normalizada
+        if unicodedata.category(char) != 'Mn'
+    )
+    return cadena_sin_acentos
 
 try:
     #  Configura la conexión al servidor SMTP
@@ -175,12 +183,12 @@ try:
             
 
             parametros = {
-                'Buk_ESTADO':Buk_ESTADO,
+                'Buk_ESTADO':quitar_acentos(Buk_ESTADO),
             }
             consulta = """
                     SELECT CODIGO FROM SPI_ENTIDAD_FEDERAL WHERE CODIGO_PAIS = 'VEN' AND UPPER(TRIM(NOMBRE)) = :Buk_ESTADO
             """
-            #print(consulta)
+            print(consulta,Buk_ESTADO)
             cursor.execute(consulta, parametros)
             Buk_ID_ENTFE_NA = cursor.fetchone()[0]
             #print('Buk_ESTADO:',Buk_ESTADO,'Buk_ID_ENTFE_NA:',Buk_ID_ENTFE_NA)

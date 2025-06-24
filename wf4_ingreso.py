@@ -677,7 +677,11 @@ try:
                 cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                 #*****************************************************************************
                 """
+                sql_query = 'SELECT * FROM log WHERE id_buk = \'' + str(transacction_id) + '\''
 
+                cursorApiEmpleado.execute(sql_query)
+                results_log = cursorApiEmpleado.fetchall()
+                connectionPg.commit()
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Notificación de registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
                 msg['From'] = 'jcuauro@gmail.com'
@@ -687,6 +691,16 @@ try:
 
 Le informamos que se ha procesado el ingreso del número de ficha {Buk_FICHA} para {Buk_NOMBRE1} {Buk_APELLIDO1}, nro de Documento: {Buk_NUM_IDEN}
 
+    **Detalles de proceso:**
+
+    Fecha y Hora                        | Mensaje 
+    |-----------------------------------|----------------------------------------------------------------------------------------------|
+    """
+
+                for row in results_log:
+                    cuerpo_mensaje += f"| {row[1]} | {row[5]} | {row[4]} |\n"
+
+                cuerpo_mensaje += """
 
 Atentamente,
 

@@ -1161,8 +1161,8 @@ try:
                             'Buk_FICHA' :Buk_FICHA,
                             'Buk_ID_PERSONA' : Buk_ID,
                             'Buk_NUM_CONTRATO' : '1',
-                            #'Buk_FECHA_INI' :Buk_F_INGRESO,
-                            'Buk_FECHA_INI' : Buk_FECHA_INI_new, # se cambia la logica por indicaciones de jeisa correo promocion del 21-mar-2025
+                            'Buk_FECHA_INI' :Buk_F_INGRESO,
+                            #'Buk_FECHA_INI' : Buk_FECHA_INI_new, # se cambia la logica por indicaciones de jeisa correo promocion del 21-mar-2025
                             'Buk_ID_CAMBIO' : '10011',
                             'Buk_USRCRE' :Buk_USRCRE,
                         }    

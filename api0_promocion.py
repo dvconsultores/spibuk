@@ -728,7 +728,6 @@ try:
 
                 count_EO_UNIDAD = cursor.fetchone()[0]
                 if count_EO_UNIDAD==0:
-                    #print('11')
                     Actividad = 'El centro de costo='+str(Buk_ID_UNIDAD)+' para la empresa='+str(company_id)+' NO existe.'
                     print(Actividad)
                     Estatus = "INFO"
@@ -780,9 +779,7 @@ try:
                         "VALUES(%s, %s, %s, %s, %s, %s)"
                         cursorApiEmpleado.execute(consulta, (transacction_id, fecha_actual,Buk_ID,Buk_FICHA,Actividad,Estatus))
                         #####*********************************************
-                    #endif
-
-
+                    #endif)
                 if Buk_FICHA!=FICHA_RelacionLaboral:
                     print('Diferencia en FICHA. SPI;',FICHA_RelacionLaboral,' BUK:',Buk_FICHA)
                 if company_id!=ID_EMPRESA_RelacionLaboral:
@@ -862,7 +859,6 @@ try:
 
                     count_TA_RELACION_LABORAL = cursor.fetchone()[0]
                     if count_TA_RELACION_LABORAL==0:
-                        #print('11')
                         Actividad = 'El colaborador tendrá una nueva relacion laboral manteniendo la misma ficha. Ficha:'+str(Buk_FICHA)
                         print(Actividad)
                         Estatus = "INFO"
@@ -1041,7 +1037,6 @@ try:
                     """
                     cursor.execute(consulta, parametros)
                     results_boss = cursor.fetchone()
-
                     if results_boss is  None or results_boss[0] is  None:
                     # L   O   G   ****************************************************************
                         Actividad = "No se logra ubicar al COACH , se procede a ASIGNAR en la Buk_FICHA_JEFE=Buk_FICHA_COLABORADOR ."

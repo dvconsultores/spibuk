@@ -39,7 +39,8 @@ postgre_host = os.getenv("POSTGRE_HOST")
 postgre_port = os.getenv("POSTGRE_PORT")
 postgre_service = os.getenv("POSTGRE_SERVICE")
 
-email_user = os.getenv("EMAIL_USER")
+#email_user = os.getenv("EMAIL_USER")
+email_user = "interfazbukspi@alfonzorivas.com"
 email_pass = os.getenv("EMAIL_PASS")
 
 dsn = cx_Oracle.makedsn(oracle_host, oracle_port, oracle_service)

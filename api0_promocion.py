@@ -62,7 +62,7 @@ try:
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(email_user, email_pass)
-    print("Conexión exitosa a smtp")
+    print("Conexión exitosa a smtp.")
 
     ##*************************************** ORACLE SPI
     connection = cx_Oracle.connect(oracle_user, oracle_pass, dsn)

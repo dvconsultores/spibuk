@@ -53,7 +53,6 @@ try:
     #  Configura la conexión al servidor SMTP
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
     server.login(email_user, email_pass)
     print("Conexión exitosa a smtp")
 
@@ -121,7 +120,7 @@ try:
                 # Crea el mensaje
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Asignación de Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + var_first_name + ', ' + var_last_name
-                msg['From'] = 'jcuauro@gmail.com'
+                msg['From'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 # Crea el cuerpo del mensaje
                 cuerpo_mensaje = f"""Estimado/a ,
@@ -140,7 +139,7 @@ Sistema Automático de gestión de ingresos.
                 """
                 msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
                  # Envía el correo electrónico
-                server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
+                server.sendmail(email_user, 'jhidalgo@alfonzorivas.com', msg.as_string())
 
                 fecha_actual = datetime.now()
 
@@ -182,7 +181,7 @@ Sistema Automático de gestión de ingresos.
                             #continue
                             msg = MIMEMultipart()
                             msg['Subject'] = 'Inconsistencia al preparar ingreso. Documento: ' + var_document_number + '. Colaborador: ' + var_first_name + ', ' + var_last_name
-                            msg['From'] = 'jcuauro@gmail.com'
+                            msg['From'] = email_user
                             msg['To'] = 'jhidalgo@alfonzorivas.com'
                             # Crea el cuerpo del mensaje
                             cuerpo_mensaje = f"""Estimado/a ,
@@ -204,7 +203,7 @@ Sistema Automático de gestión de ingresos.
                 """
                             msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
                             # Envía el correo electrónico
-                            server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
+                            server.sendmail(email_user, 'jhidalgo@alfonzorivas.com', msg.as_string())
                             Estatus = "2" # Error al procesar el ingreso
                             consulta = "UPDATE public.workflow_alta set status_process=%s WHERE id::integer = %s"
                             cursorApiEmpleado.execute(consulta, (Estatus,transacction_id))

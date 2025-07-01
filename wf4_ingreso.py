@@ -58,7 +58,6 @@ try:
     #  Configura la conexión al servidor SMTP
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    #server.login('jcuauro@gmail.com', 'mesf cfal sfwo brkr')
     server.login(email_user, email_pass)
     print("Conexión exitosa a smtp")
 
@@ -684,7 +683,7 @@ try:
                 connectionPg.commit()
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Notificación de registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
-                msg['From'] = 'jcuauro@gmail.com'
+                msg['From'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 # Crea el cuerpo del mensaje
                 cuerpo_mensaje = f"""Estimado/a ,
@@ -707,8 +706,8 @@ Atentamente,
 Sistema Automático de gestión de ingresos.
                 """
                 msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
-                    # Envía el correo electrónico
-                #server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
+                # Envía el correo electrónico
+                server.sendmail(email_user, 'jhidalgo@alfonzorivas.com', msg.as_string())
 
 
                 Estatus = "1"
@@ -729,7 +728,7 @@ Sistema Automático de gestión de ingresos.
             else:
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Notificación de ERROR en LOCALIDAD para el registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
-                msg['From'] = 'jcuauro@gmail.com'
+                msg['From'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 # Crea el cuerpo del mensaje
                 cuerpo_mensaje = f"""Estimado/a ,
@@ -744,8 +743,8 @@ Atentamente,
 Sistema Automático de gestión de ingresos.
                 """
                 msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
-                    # Envía el correo electrónico
-                #server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
+                # Envía el correo electrónico
+                server.sendmail(email_user, 'jhidalgo@alfonzorivas.com', msg.as_string())
 
 
                 Estatus = "3" # error de inconsstencia en la tabla public.localidades. No existe la sede-compañia de buk en la tabla

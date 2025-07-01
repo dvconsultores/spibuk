@@ -55,7 +55,10 @@ def quitar_acentos(cadena):
     return cadena_sin_acentos
 
 try:
+
+    
     #  Configura la conexión al servidor SMTP
+    #server = smtplib.SMTP('smtp-relay.gmail.com', 587)
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(email_user, email_pass)
@@ -1403,12 +1406,12 @@ try:
 
                 cursorApiEmpleado.execute(sql_query)
                 results_log = cursorApiEmpleado.fetchall()
-                connectionPg.commit()
+                #connectionPg.commit()
 
                 # Crea el mensaje
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Evento de Ficha Nro: ' +Buk_FICHA+' del tipo: '+event_type_id + '. Colaborador: ' + name_id + ' de fecha: ' + date_id
-                msg['From'] = 'jcuauro@gmail.com'
+                msg['From'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 #msg['To'] = 'jcuauro@gmail.com'
                 # Crea el cuerpo del mensaje
@@ -1434,13 +1437,20 @@ try:
     """
                 msg.attach(MIMEText(cuerpo_mensaje, 'plain'))
                     # Envía el correo electrónico
-                server.sendmail('jcuauro@gmail.com', 'jhidalgo@alfonzorivas.com', msg.as_string())
-                #server.sendmail('jcuauro@gmail.com', 'jcuauro@gmail.com', msg.as_string())
+                try:
+                    server.sendmail(email_user, 'jhidalgo@alfonzorivas.com', msg.as_string())
+                    #server.sendmail('jcuauro@gmail.com', 'jcuauro@gmail.com', msg.as_string())
 
 
-                connection.commit() # cAMBIOS EN SPI ORACLE
-                #connection.rollback()
-                connectionPg.commit()  #cambios en postgree LOG
+                    connection.commit() # cAMBIOS EN SPI ORACLE
+                    #connection.rollback()
+                    connectionPg.commit()  #cambios en postgree LOG
+                except smtplib.SMTPException as e:
+                    print("Error al enviar el correo electrónico:", e)
+                    # Realizar rollback en caso de error
+                    connection.rollback()
+                    connectionPg.rollback()
+                    print("Rollback realizado")
                 #connectionPg.rollback()
 
             #ENDIF 

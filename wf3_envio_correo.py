@@ -51,9 +51,11 @@ email_pass = os.getenv("EMAIL_PASS")
 
 try:
     #  Configura la conexión al servidor SMTP
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(email_user, email_pass)
+    server = smtplib.SMTP('smtp-relay.gmail.com', 587)
+
+    #server = smtplib.SMTP('smtp.gmail.com', 587)
+    #server.starttls()
+    #server.login(email_user, email_pass)
     print("Conexión exitosa a smtp")
 
     connectionPg = psycopg2.connect(

@@ -683,10 +683,11 @@ try:
 
                 cursorApiEmpleado.execute(sql_query)
                 results_log = cursorApiEmpleado.fetchall()
-                connectionPg.commit()
+                #connectionPg.commit()
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Notificación de registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
                 msg['From'] = email_user
+                #msg['To'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 # Crea el cuerpo del mensaje
                 cuerpo_mensaje = f"""Estimado/a ,
@@ -732,6 +733,7 @@ Sistema Automático de gestión de ingresos.
                 msg = MIMEMultipart()
                 msg['Subject'] = 'Notificación de ERROR en LOCALIDAD para el registro de Ingreso, Ficha Nro: ' + Buk_FICHA + '. Colaborador: ' + Buk_NOMBRE1 + ' ' + Buk_APELLIDO1
                 msg['From'] = email_user
+                #msg['To'] = email_user
                 msg['To'] = 'jhidalgo@alfonzorivas.com'
                 # Crea el cuerpo del mensaje
                 cuerpo_mensaje = f"""Estimado/a ,
@@ -758,8 +760,8 @@ Sistema Automático de gestión de ingresos.
 
         #ENDFOR
         # Confirmar la transacción si no hubo errores
-        #connection.commit()
-        connection.rollback()
+        connection.commit()
+        #connection.rollback()
         
         # LISTA EL CONTENIDO DEL LOG
         #sql_query = "SELECT * FROM log"
@@ -768,8 +770,8 @@ Sistema Automático de gestión de ingresos.
         #for row in results_log:
         #    print(row)
         
-        #connectionPg.commit()
-        connectionPg.rollback()
+        connectionPg.commit()
+        #connectionPg.rollback()
         print("Transacción finalizada")
     except cx_Oracle.DatabaseError as e:
         # Manejar excepciones relacionadas con la base de datos

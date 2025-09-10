@@ -2,13 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies, including supervisor
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
     libaio1t64 \
     gcc \
     unzip \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and unzip Oracle Instant Client zip
@@ -41,11 +42,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Make the startup script executable
-COPY start-services.sh .
-RUN chmod +x ./start-services.sh
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Verify cx_Oracle is importable
-RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
-
-CMD ["bash"]
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

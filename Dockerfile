@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
-    libaio1 \
+    libaio1t64 \
     gcc \
     unzip \
     && rm -rf /var/lib/apt/lists/*

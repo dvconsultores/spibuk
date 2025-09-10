@@ -41,6 +41,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Make the startup script executable
+COPY start-services.sh .
+RUN chmod +x ./start-services.sh
+
 # Verify cx_Oracle is importable
 RUN python -c "import cx_Oracle; print(f'✅ cx_Oracle {cx_Oracle.__version__} loaded successfully')"
 

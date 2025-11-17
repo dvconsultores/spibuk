@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     python3-dev \
-    libaio1t64 \
+    libaio1 \
     gcc \
     unzip \
     supervisor \
@@ -47,35 +47,3 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Start supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-
-name: Build and Push Docker Image
-
-on:
-  push:
-    branches:
-      - master
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./spibuk  # Set context to spibuk/ directory
-          dockerfile: Dockerfile  # Dockerfile is now in the context root
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/micro-buk-ar:latest

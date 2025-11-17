@@ -1,9 +1,13 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.11-slim
 
 WORKDIR /app
 
+# Add bullseye repo to install libaio1 (since trixie uses libaio1t64, which may not work)
+RUN echo "deb http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list.d/bullseye.list && \
+    apt-get update
+
 # Install dependencies, including supervisor
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y \
     libpq-dev \
     python3-dev \
     libaio1 \

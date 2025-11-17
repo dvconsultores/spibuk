@@ -25,6 +25,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: .  # Keeps the full repo context (includes instantclient_21_11.zip if in spibuk/)
+          dockerfile: ./spibuk/Dockerfile  # Specify the Dockerfile path
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/micro-buk-ar:latest
